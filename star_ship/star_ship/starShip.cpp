@@ -21,10 +21,12 @@ void Game::PollEvents() {
 void Game:: Run() {
     while (mWindow.isOpen()) {
         PollEvents();
-        renderAPI.Render(mWindow);
+        this->renderAPI->Render(this);
     }
 }
 
-void Render_API::Render(sf::RenderWindow& mWindow) {
-    mWindow.display();
+void Render_API::Render(Game* currentGame) {
+    currentGame->GetWindow().clear();
+    currentGame->GetWindow().draw(currentGame->GetPlayer()->GetPlayerPlace());
+    currentGame->GetWindow().display();
 }
