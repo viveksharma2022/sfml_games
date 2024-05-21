@@ -59,7 +59,6 @@ public:
 	Render_API() = default;
 	~Render_API() { std::cout << "Deleted Render API" << std::endl; }
 	virtual void Render(Game* currentGame);
-	virtual void UpdateBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList);
 	virtual void RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList);
 };
 
@@ -80,6 +79,7 @@ public:
 	std::unique_ptr<Player>&	GetPlayer() { return this->starShip; }
 	void						HandlePlayerInputs(sf::Keyboard::Key key);
 	std::list<Bullet>			bulletS;
+	void						UpdateBullets();
 };
 
 namespace Utility {

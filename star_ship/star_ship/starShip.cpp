@@ -49,6 +49,7 @@ const sf::Vector2f& Player::GetPlayerPosition() {
 void Game:: Run() {
     while (mWindow.isOpen()) {
         PollEvents();
+        UpdateBullets();
         this->renderAPI->Render(this);
     }
 }
@@ -56,13 +57,12 @@ void Game:: Run() {
 void Render_API::Render(Game* currentGame) {
     currentGame->GetWindow().clear();
     currentGame->GetWindow().draw(currentGame->GetPlayer()->GetPlayerHost());
-    UpdateBullets(currentGame->GetWindow(), currentGame->bulletS);
     RenderBullets(currentGame->GetWindow(), currentGame->bulletS);
     currentGame->GetWindow().display();
 }
 
-void Render_API::UpdateBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList) {
-    for (auto& b : bulletList) {
+void Game::UpdateBullets() {
+    for (auto& b : bulletS) {
         Utility::BorderCheck(b);
         Utility::CollisionCheck(b);
         if (b.isExist) {
@@ -72,7 +72,7 @@ void Render_API::UpdateBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bul
         }
     }
     // clear bullet if it does not exist
-    bulletList.remove_if(Utility::CheckNotExists);
+    bulletS.remove_if(Utility::CheckNotExists);
 }
 
 void Render_API::RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList) {
