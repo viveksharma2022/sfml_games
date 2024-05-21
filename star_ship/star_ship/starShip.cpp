@@ -29,6 +29,12 @@ void Game::HandlePlayerInputs(sf::Keyboard::Key key) {
     else if (key == sf::Keyboard::Right) {
         starShip->SetPlayerPosition({ playerCurrentPosition.x + 1.0f * MOV_RESOLUTION, playerCurrentPosition.y });
     }
+    else if (key == sf::Keyboard::LShift) {
+        Bullet blt;
+        blt.position = playerCurrentPosition + sf::Vector2f{PLAYER_WIDTH/2, -1.0f};
+        blt.host.setPosition(blt.position);
+        bulletS.push_back(blt);
+    }
 }
 
 void Player::SetPlayerPosition(sf::Vector2f newPosition) {
@@ -50,6 +56,44 @@ void Game:: Run() {
 void Render_API::Render(Game* currentGame) {
     currentGame->GetWindow().clear();
     currentGame->GetWindow().draw(currentGame->GetPlayer()->GetPlayerHost());
+    UpdateBullets(currentGame->GetWindow(), currentGame->bulletS);
+    RenderBullets(currentGame->GetWindow(), currentGame->bulletS);
     currentGame->GetWindow().display();
+}
+
+void Render_API::UpdateBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList) {
+    for (auto& b : bulletList) {
+        Utility::BorderCheck(b);
+        Utility::CollisionCheck(b);
+        if (b.isExist) {
+            // update position if bullet exists
+            b.position += sf::Vector2f{0.0f, -1.0f};
+            b.host.setPosition(b.position);
+        }
+    }
+    // clear bullet if it does not exist
+    bulletList.remove_if(Utility::CheckNotExists);
+}
+
+void Render_API::RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList) {
+    for (auto& b : bulletList) {
+        mWindow.draw(b.host);
+    }
+}
+
+void Utility::BorderCheck(Bullet& b) {
+    // check if position of bullets exceeds boundaries
+    if (b.position.x < 0 || b.position.x > WINDOW_WIDTH
+        || b.position.y < 0 || b.position.y > WINDOW_LENGTH) {
+        b.isExist = false;
+    }
+}
+
+void Utility::CollisionCheck(Bullet& b){
+    // TO BE ADDED
+};
+
+bool Utility::CheckNotExists(Bullet& b) { 
+    return !b.isExist; 
 }
 

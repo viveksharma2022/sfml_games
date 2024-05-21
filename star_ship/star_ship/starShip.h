@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <memory>
+#include <list>
 #include <SFML\graphics.hpp>
 
 #define WINDOW_WIDTH 800
@@ -10,9 +11,24 @@
 #define PLAYER_WIDTH 40
 #define PLAYER_HEIGHT 50
 #define MOV_RESOLUTION PLAYER_WIDTH // movement resolution on the screen
+#define BULLET_WIDTH 2
+#define BULLET_HEIGHT 5
 
 class Game;
 const std::string playerImage = "resources\\starShip.png";
+
+struct Bullet {
+	sf::RectangleShape		host;
+	sf::Vector2f			position;
+	bool					isExist; 
+	Bullet() :
+		host(sf::Vector2f(BULLET_WIDTH, BULLET_HEIGHT)),
+		isExist(true)// default existance
+	{}
+	~Bullet() {
+		std::cout << "Bullet removed" << std::endl;
+	}
+};
 
 class Player {
 private:
@@ -43,13 +59,15 @@ public:
 	Render_API() = default;
 	~Render_API() { std::cout << "Deleted Render API" << std::endl; }
 	virtual void Render(Game* currentGame);
+	virtual void UpdateBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList);
+	virtual void RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList);
 };
 
 class Game {
 private:
-	sf::RenderWindow			mWindow;
-	std::shared_ptr<Render_API>	renderAPI;
-	std::unique_ptr<Player>		starShip;
+	sf::RenderWindow				mWindow;
+	std::shared_ptr<Render_API>		renderAPI;
+	std::unique_ptr<Player>			starShip;
 public:
 	Game(std::shared_ptr<Render_API> renderAPI):
 		mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_LENGTH), "Star Ship game"),
@@ -61,4 +79,11 @@ public:
 	sf::RenderWindow&			GetWindow() { return this->mWindow; }
 	std::unique_ptr<Player>&	GetPlayer() { return this->starShip; }
 	void						HandlePlayerInputs(sf::Keyboard::Key key);
+	std::list<Bullet>			bulletS;
 };
+
+namespace Utility {
+	void BorderCheck(Bullet& b);
+	void CollisionCheck(Bullet& b); 
+	bool CheckNotExists(Bullet& b);
+}
