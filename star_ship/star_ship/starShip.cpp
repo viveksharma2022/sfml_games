@@ -51,6 +51,7 @@ void Game:: Run() {
         PollEvents();
         UpdateBullets();
         CreateEnemies();
+        UpdateEnemies();
         this->renderAPI->Render(this);
     }
 }
@@ -82,6 +83,41 @@ void Game::UpdateBullets() {
     bulletS.remove_if(Utility::CheckNotExists);
 }
 
+void Game::UpdateEnemies() {
+    float deltaTime = globalClock.restart().asSeconds(); // get delta time
+        for (auto& e : enemies) {
+            Utility::BorderCheck(e);
+            if (e->isExist) {
+                //update position of the enemy based on it's velocity  
+                e->position += {0.0f, e->velocity * deltaTime};
+                e->host.setPosition(e->position);
+            }        
+        }
+    // clear enemy if it does not exist
+        enemies.remove_if([](const std::unique_ptr<Enemy>& e) {return !e->isExist; });
+}
+
+void Utility::BorderCheck(Bullet& b) {
+    // check if position exceeds boundaries
+    // host reference point is top left corner
+    const static sf::Vector2f hostSize = b.host.getSize();
+    if (b.position.x < 0 || (b.position.x + hostSize.y) > WINDOW_WIDTH
+        || (b.position.y) < 0 || (b.position.y + hostSize.x) > WINDOW_LENGTH) {
+        b.isExist = false;
+    }
+}
+
+// TODO: template out border checks, unnecessary code duplication
+void Utility::BorderCheck(std::unique_ptr<Enemy>& e) {
+    // check if position exceeds boundaries
+    // host reference point is top left corner
+    const static sf::Vector2f hostSize = e->host.getSize();
+    if (e->position.x < 0 || (e->position.x + hostSize.y) > WINDOW_WIDTH
+        || e->position.y < 0 || (e->position.y + hostSize.x) > WINDOW_LENGTH) {
+        e->isExist = false;
+    }
+}
+
 void Render_API::RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList) {
     for (auto& b : bulletList) {
         mWindow.draw(b.host);
@@ -91,14 +127,6 @@ void Render_API::RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bul
 void Render_API::RenderEnemies(sf::RenderWindow& mWindow, std::list<std::unique_ptr<Enemy>>& enemies) {
     for (auto& e : enemies) {
         mWindow.draw(e->host);
-    }
-}
-
-void Utility::BorderCheck(Bullet& b) {
-    // check if position of bullets exceeds boundaries
-    if (b.position.x < 0 || b.position.x > WINDOW_WIDTH
-        || b.position.y < 0 || b.position.y > WINDOW_LENGTH) {
-        b.isExist = false;
     }
 }
 

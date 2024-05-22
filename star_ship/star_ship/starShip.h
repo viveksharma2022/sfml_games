@@ -20,7 +20,8 @@
 
 class Game;
 const std::string playerImage = "resources\\starShip.png";
-constexpr uint16_t enemyVelocities[] = { 5,10,15,20,25,30 }; // all possible velocities for enemy movement 
+constexpr float enemyVelocities[] = { 50.f,100.f,150.f,200.f,250.f,300.f }; // all possible velocities for enemy movement, unit: pixels/second
+static sf::Clock globalClock; 
 
 // utility to get array size
 template <typename T, size_t N>
@@ -41,17 +42,18 @@ struct Bullet {
 	}
 };
 
-
 class Enemy {
 public:
 	sf::RectangleShape host;
 	sf::Vector2f position;
 	uint16_t velocity;
+	bool isExist;
 
 	Enemy() :
 		host(sf::Vector2f(ENEMY_WIDTH, ENEMY_HEIGHT)),
 		position({static_cast<float>(rand() % WINDOW_WIDTH), 0.0f}),
-		velocity(rand() % GetArraySize(enemyVelocities)) 
+		velocity(enemyVelocities[rand() % GetArraySize(enemyVelocities)]),
+		isExist(true)
 	{
 		host.setPosition(position); // set enemy initial position
 		std::cout << "Enemy created with velocity: " << velocity << std::endl;
@@ -114,10 +116,15 @@ public:
 	std::list<std::unique_ptr<Enemy>>	enemies;
 	void								UpdateBullets();
 	void								CreateEnemies();
+	void								UpdateEnemies();
 };
 
 namespace Utility {
+	// TODO: change bullet from stack memory to unique pointer. Impact on speed to be taken into account
 	void BorderCheck(Bullet& b);
+	void BorderCheck(std::unique_ptr<Enemy>& e);
 	void CollisionCheck(Bullet& b); 
 	bool CheckNotExists(Bullet& b);
 }
+
+
