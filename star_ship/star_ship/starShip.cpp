@@ -50,21 +50,28 @@ void Game:: Run() {
     while (mWindow.isOpen()) {
         PollEvents();
         UpdateBullets();
+        CreateEnemies();
         this->renderAPI->Render(this);
+    }
+}
+
+void Game::CreateEnemies() {
+    while (enemies.size() < MAX_ENEMIES) {
+        enemies.push_back(std::make_unique<Enemy>());
     }
 }
 
 void Render_API::Render(Game* currentGame) {
     currentGame->GetWindow().clear();
-    currentGame->GetWindow().draw(currentGame->GetPlayer()->GetPlayerHost());
+    currentGame->GetWindow().draw(currentGame->GetPlayer()->GetPlayerHost()); // render player
     RenderBullets(currentGame->GetWindow(), currentGame->bulletS);
+    RenderEnemies(currentGame->GetWindow(), currentGame->enemies);
     currentGame->GetWindow().display();
 }
 
 void Game::UpdateBullets() {
     for (auto& b : bulletS) {
         Utility::BorderCheck(b);
-        Utility::CollisionCheck(b);
         if (b.isExist) {
             // update position if bullet exists
             b.position += sf::Vector2f{0.0f, -1.0f};
@@ -78,6 +85,12 @@ void Game::UpdateBullets() {
 void Render_API::RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList) {
     for (auto& b : bulletList) {
         mWindow.draw(b.host);
+    }
+}
+
+void Render_API::RenderEnemies(sf::RenderWindow& mWindow, std::list<std::unique_ptr<Enemy>>& enemies) {
+    for (auto& e : enemies) {
+        mWindow.draw(e->host);
     }
 }
 
