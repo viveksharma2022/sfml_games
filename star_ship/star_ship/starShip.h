@@ -6,17 +6,8 @@
 #include <list>
 #include <cstdlib>
 #include <SFML\graphics.hpp>
-
-#define WINDOW_WIDTH 400
-#define WINDOW_LENGTH 600
-#define PLAYER_WIDTH 40
-#define PLAYER_HEIGHT 50
-#define ENEMY_WIDTH PLAYER_WIDTH*1.2
-#define ENEMY_HEIGHT PLAYER_HEIGHT*0.5
-#define MOV_RESOLUTION PLAYER_WIDTH/2 // movement resolution on the screen
-#define BULLET_WIDTH 2
-#define BULLET_HEIGHT 5
-#define MAX_ENEMIES 2
+#include "definitions.h"
+#include "utility.h"
 
 class Game;
 const std::string playerImage = "resources\\starShip.jpg";
@@ -119,28 +110,7 @@ public:
 	void								UpdateEnemies();
 };
 
-namespace Utility {
-	// TODO: change bullet from stack memory to unique pointer. Impact on speed to be taken into account
-	template<typename T>
-	void BorderCheck(T& positionalObj) {
-		// check if position of a positional object exceeds boundaries
-		// PositionalObj must contain a host(drawing object in sfml context) and position(Vector2f)
-		// host reference point is top left corner
-		const static sf::Vector2f hostSize = positionalObj.host.getSize();
-		if (positionalObj.position.x < 0 || (positionalObj.position.x + hostSize.y) > WINDOW_WIDTH
-			|| (positionalObj.position.y) < 0 || (positionalObj.position.y + hostSize.x) > WINDOW_LENGTH) {
-			positionalObj.isExist = false;
-		}
-	}
 
-	void CollisionCheck(Bullet& b);
-
-	template<typename T>
-	bool CheckNotExists(T& positionalObj) {
-		// check if a positional object exists
-		return !positionalObj.isExist;
-	}
-}
 
 
 
