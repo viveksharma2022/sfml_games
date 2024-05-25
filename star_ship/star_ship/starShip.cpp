@@ -58,7 +58,7 @@ void Game:: Run() {
 
 void Game::CreateEnemies() {
     while (enemies.size() < MAX_ENEMIES) {
-        enemies.push_back(std::make_unique<Enemy>());
+        enemies.push_back(Enemy());
     }
 }
 
@@ -80,42 +80,21 @@ void Game::UpdateBullets() {
         }
     }
     // clear bullet if it does not exist
-    bulletS.remove_if(Utility::CheckNotExists);
+    bulletS.remove_if(Utility::CheckNotExists<Bullet>);
 }
 
 void Game::UpdateEnemies() {
     float deltaTime = globalClock.restart().asSeconds(); // get delta time
         for (auto& e : enemies) {
             Utility::BorderCheck(e);
-            if (e->isExist) {
+            if (e.isExist) {
                 //update position of the enemy based on it's velocity  
-                e->position += {0.0f, e->velocity * deltaTime};
-                e->host.setPosition(e->position);
+                e.position += {0.0f, e.velocity * deltaTime};
+                e.host.setPosition(e.position);
             }        
         }
     // clear enemy if it does not exist
-        enemies.remove_if([](const std::unique_ptr<Enemy>& e) {return !e->isExist; });
-}
-
-void Utility::BorderCheck(Bullet& b) {
-    // check if position exceeds boundaries
-    // host reference point is top left corner
-    const static sf::Vector2f hostSize = b.host.getSize();
-    if (b.position.x < 0 || (b.position.x + hostSize.y) > WINDOW_WIDTH
-        || (b.position.y) < 0 || (b.position.y + hostSize.x) > WINDOW_LENGTH) {
-        b.isExist = false;
-    }
-}
-
-// TODO: template out border checks, unnecessary code duplication
-void Utility::BorderCheck(std::unique_ptr<Enemy>& e) {
-    // check if position exceeds boundaries
-    // host reference point is top left corner
-    const static sf::Vector2f hostSize = e->host.getSize();
-    if (e->position.x < 0 || (e->position.x + hostSize.y) > WINDOW_WIDTH
-        || e->position.y < 0 || (e->position.y + hostSize.x) > WINDOW_LENGTH) {
-        e->isExist = false;
-    }
+    enemies.remove_if(Utility::CheckNotExists<Enemy>);
 }
 
 void Render_API::RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList) {
@@ -124,17 +103,12 @@ void Render_API::RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bul
     }
 }
 
-void Render_API::RenderEnemies(sf::RenderWindow& mWindow, std::list<std::unique_ptr<Enemy>>& enemies) {
+void Render_API::RenderEnemies(sf::RenderWindow& mWindow, std::list<Enemy>& enemies) {
     for (auto& e : enemies) {
-        mWindow.draw(e->host);
+        mWindow.draw(e.host);
     }
 }
 
-void Utility::CollisionCheck(Bullet& b){
+void Utility::CollisionCheck(Bullet& b) {
     // TO BE ADDED
 };
-
-bool Utility::CheckNotExists(Bullet& b) { 
-    return !b.isExist; 
-}
-

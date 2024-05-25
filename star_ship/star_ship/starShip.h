@@ -19,7 +19,7 @@
 #define MAX_ENEMIES 2
 
 class Game;
-const std::string playerImage = "resources\\starShip.png";
+const std::string playerImage = "resources\\starShip.jpg";
 constexpr float enemyVelocities[] = { 50.f,100.f,150.f,200.f,250.f,300.f }; // all possible velocities for enemy movement, unit: pixels/second
 static sf::Clock globalClock; 
 
@@ -93,7 +93,7 @@ public:
 	~Render_API() { std::cout << "Deleted Render API" << std::endl; }
 	virtual void Render(Game* currentGame);
 	virtual void RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList);
-	virtual void RenderEnemies(sf::RenderWindow& mWindow, std::list<std::unique_ptr<Enemy>>& enemies);
+	virtual void RenderEnemies(sf::RenderWindow& mWindow, std::list<Enemy>& enemies);
 };
 
 class Game {
@@ -113,7 +113,7 @@ public:
 	std::unique_ptr<Player>&			GetPlayer() { return this->starShip; }
 	void								HandlePlayerInputs(sf::Keyboard::Key key);
 	std::list<Bullet>					bulletS;
-	std::list<std::unique_ptr<Enemy>>	enemies;
+	std::list<Enemy>					enemies;
 	void								UpdateBullets();
 	void								CreateEnemies();
 	void								UpdateEnemies();
@@ -121,10 +121,26 @@ public:
 
 namespace Utility {
 	// TODO: change bullet from stack memory to unique pointer. Impact on speed to be taken into account
-	void BorderCheck(Bullet& b);
-	void BorderCheck(std::unique_ptr<Enemy>& e);
-	void CollisionCheck(Bullet& b); 
-	bool CheckNotExists(Bullet& b);
+	template<typename T>
+	void BorderCheck(T& positionalObj) {
+		// check if position of a positional object exceeds boundaries
+		// PositionalObj must contain a host(drawing object in sfml context) and position(Vector2f)
+		// host reference point is top left corner
+		const static sf::Vector2f hostSize = positionalObj.host.getSize();
+		if (positionalObj.position.x < 0 || (positionalObj.position.x + hostSize.y) > WINDOW_WIDTH
+			|| (positionalObj.position.y) < 0 || (positionalObj.position.y + hostSize.x) > WINDOW_LENGTH) {
+			positionalObj.isExist = false;
+		}
+	}
+
+	void CollisionCheck(Bullet& b);
+
+	template<typename T>
+	bool CheckNotExists(T& positionalObj) {
+		// check if a positional object exists
+		return !positionalObj.isExist;
+	}
 }
+
 
 
