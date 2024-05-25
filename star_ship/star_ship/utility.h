@@ -22,4 +22,11 @@ namespace Utility {
 		// check if a positional object exists
 		return !positionalObj.isExist;
 	}
+
+	template <typename T>
+	T BoundCheck(T currentValue, T newValue, T width) {
+		// restrict values within the window width range not
+		return  (newValue >= 0.0f && newValue <= width) ? newValue : currentValue;
+	}
+
 }

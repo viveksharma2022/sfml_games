@@ -24,10 +24,12 @@ void Game::PollEvents() {
 void Game::HandlePlayerInputs(sf::Keyboard::Key key) {
     sf::Vector2f playerCurrentPosition = starShip->GetPlayerPosition();
     if (key == sf::Keyboard::Left) {
-        starShip->SetPlayerPosition({playerCurrentPosition.x - 1.0f * MOV_RESOLUTION, playerCurrentPosition.y});
+         starShip->SetPlayerPosition({Utility::BoundCheck<float>(playerCurrentPosition.x, playerCurrentPosition.x - 1.0f * MOV_RESOLUTION, static_cast<float>(WINDOW_WIDTH - MOV_RESOLUTION - 1)),
+            playerCurrentPosition.y });
     }
     else if (key == sf::Keyboard::Right) {
-        starShip->SetPlayerPosition({ playerCurrentPosition.x + 1.0f * MOV_RESOLUTION, playerCurrentPosition.y });
+        starShip->SetPlayerPosition({ Utility::BoundCheck<float>(playerCurrentPosition.x, playerCurrentPosition.x + 1.0f * MOV_RESOLUTION, static_cast<float>(WINDOW_WIDTH - MOV_RESOLUTION - 1)),
+            playerCurrentPosition.y });
     }
     else if (key == sf::Keyboard::LShift) {
         Bullet blt;

@@ -42,7 +42,7 @@ public:
 
 	Enemy() :
 		host(sf::Vector2f(ENEMY_WIDTH, ENEMY_HEIGHT)),
-		position({static_cast<float>(rand() % WINDOW_WIDTH), 0.0f}),
+		position({static_cast<float>(rand() % WINDOW_WIDTH - ENEMY_WIDTH - 1), 0.0f}), // randomly positions the player at start
 		velocity(enemyVelocities[rand() % GetArraySize(enemyVelocities)]),
 		isExist(true)
 	{
