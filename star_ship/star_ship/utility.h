@@ -33,4 +33,24 @@ namespace Utility {
 		return  (newValue >= 0.0f && newValue <= width) ? newValue : currentValue;
 	}
 
+	// singleton class
+	class ScoreBoard {
+	private:
+		uint64_t score;
+		ScoreBoard() :
+			score(0) {};
+	public:
+		ScoreBoard(const ScoreBoard& obj) = delete; // delete copy constructor
+		ScoreBoard& operator=(const ScoreBoard& obj) = delete; // delete assignment operator
+		static ScoreBoard& CreateScoreBoard(){
+			static ScoreBoard scoreBoard;
+			return scoreBoard;
+		}
+		void AddScore(uint64_t addend) {
+			score += addend;
+		}
+		const uint64_t& GetScore() const {
+			return score;
+		}
+	};
 }

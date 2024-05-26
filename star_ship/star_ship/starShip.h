@@ -103,14 +103,17 @@ public:
 
 class Game {
 private:
-	sf::RenderWindow				mWindow;
-	std::shared_ptr<Render_API>		renderAPI;
-	std::unique_ptr<Player>			starShip;
-	GameStatus						gameStates;
+	sf::RenderWindow						mWindow;
+	std::shared_ptr<Render_API>				renderAPI;
+	std::unique_ptr<Player>					starShip;
+	Utility::ScoreBoard& 					scoreBoard;
+	GameStatus								gameStates;
 public:
-	Game(std::shared_ptr<Render_API> renderAPI):
+	Game(std::shared_ptr<Render_API> renderAPI,
+		Utility::ScoreBoard& scoreBoard):
 		mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_LENGTH), "Star Ship game"),
 		renderAPI(renderAPI),
+		scoreBoard(scoreBoard),
 		starShip(std::make_unique<Player>()),
 		gameStates(GAME_RUNNING)
 	{}
