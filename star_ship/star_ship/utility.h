@@ -1,6 +1,10 @@
 #pragma once
+#include <list>
+#include <algorithm>
 
 struct Bullet;
+class Enemy;
+
 namespace Utility {
 	// TODO: change bullet from stack memory to unique pointer. Impact on speed to be taken into account
 	template<typename T>
@@ -15,7 +19,7 @@ namespace Utility {
 		}
 	}
 
-	void CollisionCheck(Bullet& b);
+	void CollisionCheck(std::list<Enemy>& enemies, std::list<Bullet>& bullets);
 
 	template<typename T>
 	bool CheckNotExists(T& positionalObj) {
@@ -25,7 +29,7 @@ namespace Utility {
 
 	template <typename T>
 	T BoundCheck(T currentValue, T newValue, T width) {
-		// restrict values within the window width range not
+		// restrict values within the window width range assuming start is at 0
 		return  (newValue >= 0.0f && newValue <= width) ? newValue : currentValue;
 	}
 

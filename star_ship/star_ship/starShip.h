@@ -52,6 +52,7 @@ public:
 	~Enemy() {
 		std::cout << "Enemy destroyed" << std::endl;
 	}
+	const sf::RectangleShape& GetHost() const { return host; }
 };
 
 class Player {
@@ -103,7 +104,7 @@ public:
 	sf::RenderWindow&					GetWindow() { return this->mWindow; }
 	std::unique_ptr<Player>&			GetPlayer() { return this->starShip; }
 	void								HandlePlayerInputs(sf::Keyboard::Key key);
-	std::list<Bullet>					bulletS;
+	std::list<Bullet>					bullets;
 	std::list<Enemy>					enemies;
 	void								UpdateBullets();
 	void								CreateEnemies();

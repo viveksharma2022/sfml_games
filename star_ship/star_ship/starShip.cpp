@@ -35,7 +35,7 @@ void Game::HandlePlayerInputs(sf::Keyboard::Key key) {
         Bullet blt;
         blt.position = playerCurrentPosition + sf::Vector2f{PLAYER_WIDTH/2, -1.0f};
         blt.host.setPosition(blt.position);
-        bulletS.push_back(blt);
+        bullets.push_back(blt);
     }
 }
 
@@ -51,6 +51,7 @@ const sf::Vector2f& Player::GetPlayerPosition() {
 void Game:: Run() {
     while (mWindow.isOpen()) {
         PollEvents();
+        Utility::CollisionCheck(enemies, bullets);
         UpdateBullets();
         CreateEnemies();
         UpdateEnemies();
@@ -67,13 +68,13 @@ void Game::CreateEnemies() {
 void Render_API::Render(Game* currentGame) {
     currentGame->GetWindow().clear();
     currentGame->GetWindow().draw(currentGame->GetPlayer()->GetPlayerHost()); // render player
-    RenderBullets(currentGame->GetWindow(), currentGame->bulletS);
+    RenderBullets(currentGame->GetWindow(), currentGame->bullets);
     RenderEnemies(currentGame->GetWindow(), currentGame->enemies);
     currentGame->GetWindow().display();
 }
 
 void Game::UpdateBullets() {
-    for (auto& b : bulletS) {
+    for (auto& b : bullets) {
         Utility::BorderCheck(b);
         if (b.isExist) {
             // update position if bullet exists
@@ -82,7 +83,7 @@ void Game::UpdateBullets() {
         }
     }
     // clear bullet if it does not exist
-    bulletS.remove_if(Utility::CheckNotExists<Bullet>);
+    bullets.remove_if(Utility::CheckNotExists<Bullet>);
 }
 
 void Game::UpdateEnemies() {
@@ -111,6 +112,21 @@ void Render_API::RenderEnemies(sf::RenderWindow& mWindow, std::list<Enemy>& enem
     }
 }
 
-void Utility::CollisionCheck(Bullet& b) {
-    // TO BE ADDED
-};
+void Utility::CollisionCheck(std::list<Enemy>& enemies, std::list<Bullet>& bullets) {
+    // check collision of enemies with bullets
+    for (auto& e : enemies) {
+        // fine optimization may be needed, as early stopping is not enabled in std::any_of, it goes through all the list of bullets,
+        // a handwriiten function may be necessary
+        std::any_of(bullets.begin(), bullets.end(), [&e](Bullet& b) {
+            if (e.GetHost().getGlobalBounds().intersects(b.host.getGlobalBounds())) {
+                // destroy bullet and enemy
+                e.isExist = false;
+                b.isExist = false;
+                return true;
+            }
+            else {
+                return false;
+            }
+            });
+    }
+}
