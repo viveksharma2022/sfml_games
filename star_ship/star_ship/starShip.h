@@ -6,6 +6,8 @@
 #include <list>
 #include <cstdlib>
 #include <SFML\graphics.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/System/String.hpp>
 #include "definitions.h"
 #include "utility.h"
 
@@ -19,6 +21,16 @@ template <typename T, size_t N>
 constexpr size_t GetArraySize(T(&)[N]) {
 	return N;
 }
+
+enum GameStatus {
+	GAME_OVER,
+	GAME_RUNNING,
+	GAME_PAUSED
+};
+
+inline GameStatus ExecuteSpaceKeyEvent(GameStatus status){
+	return (status == GAME_PAUSED) ? GAME_RUNNING : GAME_PAUSED;
+} 
 
 struct Bullet {
 	sf::RectangleShape		host;
@@ -84,6 +96,7 @@ public:
 	Render_API() = default;
 	~Render_API() { std::cout << "Deleted Render API" << std::endl; }
 	virtual void Render(Game* currentGame);
+	virtual void RenderPause(Game* currentGame);
 	virtual void RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList);
 	virtual void RenderEnemies(sf::RenderWindow& mWindow, std::list<Enemy>& enemies);
 };
@@ -93,13 +106,16 @@ private:
 	sf::RenderWindow				mWindow;
 	std::shared_ptr<Render_API>		renderAPI;
 	std::unique_ptr<Player>			starShip;
+	GameStatus						gameStates;
 public:
 	Game(std::shared_ptr<Render_API> renderAPI):
 		mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_LENGTH), "Star Ship game"),
 		renderAPI(renderAPI),
-		starShip(std::make_unique<Player>())
+		starShip(std::make_unique<Player>()),
+		gameStates(GAME_RUNNING)
 	{}
 	void								PollEvents();
+	void								PollPauseEvent();
 	void								Run();
 	sf::RenderWindow&					GetWindow() { return this->mWindow; }
 	std::unique_ptr<Player>&			GetPlayer() { return this->starShip; }

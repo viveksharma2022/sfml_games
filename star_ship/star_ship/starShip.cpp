@@ -1,5 +1,6 @@
 #include "starShip.h"
 
+// TODO: change polling based on state design pattern
 void Game::PollEvents() {
 	sf::Event event;
     while (mWindow.pollEvent(event))
@@ -13,6 +14,29 @@ void Game::PollEvents() {
             break;
         case sf::Event::KeyPressed:
             HandlePlayerInputs(event.key.code);
+            break;
+            // we don't process other types of events
+        default:
+            break;
+        }
+    }
+}
+
+void Game::PollPauseEvent() {
+    sf::Event event;
+    while (mWindow.pollEvent(event))
+    {
+        // check the type of the event...Handle only pause event
+        switch (event.type)
+        {
+            // window closed
+        case sf::Event::Closed:
+            mWindow.close();
+            break;
+        case (sf::Event::KeyPressed):
+            if (event.key.code == sf::Keyboard::Space) { // handle only space button
+                gameStates = ExecuteSpaceKeyEvent(gameStates);
+            }
             break;
             // we don't process other types of events
         default:
@@ -37,6 +61,9 @@ void Game::HandlePlayerInputs(sf::Keyboard::Key key) {
         blt.host.setPosition(blt.position);
         bullets.push_back(blt);
     }
+    else if (key == sf::Keyboard::Space) {
+        gameStates = ExecuteSpaceKeyEvent(gameStates);
+    }
 }
 
 void Player::SetPlayerPosition(sf::Vector2f newPosition) {
@@ -50,12 +77,23 @@ const sf::Vector2f& Player::GetPlayerPosition() {
 
 void Game:: Run() {
     while (mWindow.isOpen()) {
-        PollEvents();
-        Utility::CollisionCheck(enemies, bullets);
-        UpdateBullets();
-        CreateEnemies();
-        UpdateEnemies();
-        this->renderAPI->Render(this);
+        // TODO: implement state design pattern
+        switch (gameStates) {
+            case GAME_RUNNING:
+                PollEvents();
+                Utility::CollisionCheck(enemies, bullets);
+                UpdateBullets();
+                CreateEnemies();
+                UpdateEnemies();
+                this->renderAPI->Render(this);
+                break;
+            case GAME_PAUSED:
+                PollPauseEvent();
+                this->renderAPI->Render(this);
+                this->renderAPI->RenderPause(this);
+                globalClock.restart(); // reset clock (dt) otherwise it impacts enemy movement, enemy distance = dt * velocity
+                break;
+        }
     }
 }
 
@@ -70,6 +108,17 @@ void Render_API::Render(Game* currentGame) {
     currentGame->GetWindow().draw(currentGame->GetPlayer()->GetPlayerHost()); // render player
     RenderBullets(currentGame->GetWindow(), currentGame->bullets);
     RenderEnemies(currentGame->GetWindow(), currentGame->enemies);
+    currentGame->GetWindow().display();
+}
+
+void Render_API::RenderPause(Game* currentGame) {
+    currentGame->GetWindow().clear();
+    sf::Font font;
+    if (!font.loadFromFile("resources\\arial.ttf")) {} // Load font
+    sf::Text text("Pause!", font, 50);
+    // set the text style
+    text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    currentGame->GetWindow().draw(text);
     currentGame->GetWindow().display();
 }
 
