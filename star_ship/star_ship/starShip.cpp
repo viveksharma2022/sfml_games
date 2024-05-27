@@ -114,7 +114,7 @@ void Render_API::Render(Game* currentGame) {
 
 void Render_API::RenderPause(Game* currentGame) {
     currentGame->GetWindow().clear();
-    sf::Text text("Pause!", currentGame->gameTextFont, 50);
+    static sf::Text text("Pause!", currentGame->gameTextFont, 50);
     // set the text style
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
     currentGame->GetWindow().draw(text);
