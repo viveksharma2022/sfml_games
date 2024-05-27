@@ -108,14 +108,13 @@ void Render_API::Render(Game* currentGame) {
     currentGame->GetWindow().draw(currentGame->GetPlayer()->GetPlayerHost()); // render player
     RenderBullets(currentGame->GetWindow(), currentGame->bullets);
     RenderEnemies(currentGame->GetWindow(), currentGame->enemies);
+    RenderScoreBoard(currentGame);
     currentGame->GetWindow().display();
 }
 
 void Render_API::RenderPause(Game* currentGame) {
     currentGame->GetWindow().clear();
-    sf::Font font;
-    if (!font.loadFromFile("resources\\arial.ttf")) {} // Load font
-    sf::Text text("Pause!", font, 50);
+    sf::Text text("Pause!", currentGame->gameTextFont, 50);
     // set the text style
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
     currentGame->GetWindow().draw(text);
@@ -159,6 +158,13 @@ void Render_API::RenderEnemies(sf::RenderWindow& mWindow, std::list<Enemy>& enem
     for (auto& e : enemies) {
         mWindow.draw(e.host);
     }
+}
+
+void Render_API::RenderScoreBoard(Game* currentGame) {
+    sf::Text text("SCORE: " + std::to_string(currentGame->scoreBoard.GetScore()), currentGame->gameTextFont, 30);
+    text.setPosition(currentGame->scoreBoard.GetScoreBoardPosition() + sf::Vector2f{0.0f, 20.0f});
+    text.setStyle(sf::Text::Bold);
+    currentGame->GetWindow().draw(text);
 }
 
 void Utility::CollisionCheck(std::list<Enemy>& enemies, std::list<Bullet>& bullets) {

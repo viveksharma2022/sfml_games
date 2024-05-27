@@ -74,7 +74,7 @@ private:
 	sf::Texture playerTexture;
 public:
 	Player() :
-		position({ WINDOW_WIDTH / 2, WINDOW_LENGTH - PLAYER_HEIGHT-1}),
+		position({ WINDOW_WIDTH / 2, WINDOW_LENGTH - SCORE_BOARD_HEIGHT - PLAYER_HEIGHT-1}),
 		playerHost(sf::Vector2f(PLAYER_WIDTH, PLAYER_HEIGHT))
 	{
 		playerHost.setPosition(position); // set the initial position of the player
@@ -99,6 +99,7 @@ public:
 	virtual void RenderPause(Game* currentGame);
 	virtual void RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList);
 	virtual void RenderEnemies(sf::RenderWindow& mWindow, std::list<Enemy>& enemies);
+	virtual void RenderScoreBoard(Game* currentGame);
 };
 
 class Game {
@@ -106,9 +107,10 @@ private:
 	sf::RenderWindow						mWindow;
 	std::shared_ptr<Render_API>				renderAPI;
 	std::unique_ptr<Player>					starShip;
-	Utility::ScoreBoard& 					scoreBoard;
 	GameStatus								gameStates;
 public:
+	Utility::ScoreBoard& scoreBoard;
+	sf::Font gameTextFont; // font for text display
 	Game(std::shared_ptr<Render_API> renderAPI,
 		Utility::ScoreBoard& scoreBoard):
 		mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_LENGTH), "Star Ship game"),
@@ -116,7 +118,9 @@ public:
 		scoreBoard(scoreBoard),
 		starShip(std::make_unique<Player>()),
 		gameStates(GAME_RUNNING)
-	{}
+	{
+		if (!gameTextFont.loadFromFile("resources\\arial.ttf")) {} // Load font
+	}
 	void								PollEvents();
 	void								PollPauseEvent();
 	void								Run();

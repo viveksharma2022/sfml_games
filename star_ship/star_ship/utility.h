@@ -14,7 +14,7 @@ namespace Utility {
 		// host reference point is top left corner
 		const static sf::Vector2f hostSize = positionalObj.host.getSize();
 		if (positionalObj.position.x < 0 || (positionalObj.position.x + hostSize.y) > WINDOW_WIDTH
-			|| (positionalObj.position.y) < 0 || (positionalObj.position.y + hostSize.x) > WINDOW_LENGTH) {
+			|| (positionalObj.position.y) < 0 || (positionalObj.position.y + hostSize.x) > (WINDOW_LENGTH - SCORE_BOARD_HEIGHT)) {
 			positionalObj.isExist = false;
 		}
 	}
@@ -37,8 +37,10 @@ namespace Utility {
 	class ScoreBoard {
 	private:
 		uint64_t score;
+		sf::Vector2f position;
 		ScoreBoard() :
-			score(0) {};
+			score(0),
+			position(sf::Vector2f(0.0f, static_cast<float>(WINDOW_LENGTH - SCORE_BOARD_HEIGHT))){};
 	public:
 		ScoreBoard(const ScoreBoard& obj) = delete; // delete copy constructor
 		ScoreBoard& operator=(const ScoreBoard& obj) = delete; // delete assignment operator
@@ -52,5 +54,6 @@ namespace Utility {
 		const uint64_t& GetScore() const {
 			return score;
 		}
+		const sf::Vector2f& GetScoreBoardPosition() const { return position; }
 	};
 }
