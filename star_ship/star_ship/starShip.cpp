@@ -75,6 +75,15 @@ const sf::Vector2f& Player::GetPlayerPosition() {
     return this->position;
 }
 
+void Game::UpdateScoreBoard() {
+    // add to the score if an enemy is killed
+    for (auto& e : enemies) {
+        if (!e.isNotCollided) {
+            scoreBoard.AddScore(e.killScore);
+        }
+    }
+}
+
 void Game:: Run() {
     while (mWindow.isOpen()) {
         // TODO: implement state design pattern
@@ -82,6 +91,7 @@ void Game:: Run() {
             case GAME_RUNNING:
                 PollEvents();
                 Utility::CollisionCheck(enemies, bullets);
+                UpdateScoreBoard();
                 UpdateBullets();
                 CreateEnemies();
                 UpdateEnemies();
@@ -175,8 +185,8 @@ void Utility::CollisionCheck(std::list<Enemy>& enemies, std::list<Bullet>& bulle
         std::any_of(bullets.begin(), bullets.end(), [&e](Bullet& b) {
             if (e.GetHost().getGlobalBounds().intersects(b.host.getGlobalBounds())) {
                 // destroy bullet and enemy
-                e.isExist = false;
-                b.isExist = false;
+                e.isNotCollided = false;
+                b.isNotCollided = false;
                 return true;
             }
             else {

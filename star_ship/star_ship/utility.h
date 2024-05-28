@@ -24,7 +24,7 @@ namespace Utility {
 	template<typename T>
 	bool CheckNotExists(T& positionalObj) {
 		// check if a positional object exists
-		return !positionalObj.isExist;
+		return !(positionalObj.isExist && positionalObj.isNotCollided);
 	}
 
 	template <typename T>
