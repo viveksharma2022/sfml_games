@@ -84,11 +84,21 @@ void Game::UpdateScoreBoard() {
     }
 }
 
+void Game::CheckGameOver() {
+    if (std::any_of(enemies.begin(), enemies.end(),
+        [](const Enemy& enemyPosition) {
+            return (enemyPosition.GetEnemyPosition().y >= (WINDOW_LENGTH - SCORE_BOARD_HEIGHT - PLAYER_HEIGHT - 1)) ? true : false;
+        })) {
+        gameStates = GAME_OVER;
+    }
+}
+
 void Game:: Run() {
     while (mWindow.isOpen()) {
         // TODO: implement state design pattern
         switch (gameStates) {
             case GAME_RUNNING:
+                CheckGameOver();
                 PollEvents();
                 Utility::CollisionCheck(enemies, bullets);
                 UpdateScoreBoard();
@@ -103,7 +113,21 @@ void Game:: Run() {
                 this->renderAPI->RenderPause(this);
                 globalClock.restart(); // reset clock (dt) otherwise it impacts enemy movement, enemy distance = dt * velocity
                 break;
+            case GAME_OVER:
+                Utility::CheckWindowClosed(this);
+                this->renderAPI->Render(this);
+                this->renderAPI->RenderGameOver(this);
+                break;
         }
+    }
+}
+
+inline void Utility::CheckWindowClosed(Game* currentGame) {
+    // poll only for window close event
+    sf::Event event;
+    currentGame->GetWindow().pollEvent(event);
+    if (event.type == sf::Event::Closed) {
+        currentGame->GetWindow().close();
     }
 }
 
@@ -127,6 +151,17 @@ void Render_API::RenderPause(Game* currentGame) {
     static sf::Text text("Pause!", currentGame->gameTextFont, 50);
     // set the text style
     text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+    currentGame->GetWindow().draw(text);
+    currentGame->GetWindow().display();
+}
+
+void Render_API::RenderGameOver(Game* currentGame) {
+    currentGame->GetWindow().clear();
+    static sf::Text text("GAME OVER!", currentGame->gameTextFont, 50);
+    // set the text style
+    text.setStyle(sf::Text::Bold);
+    text.setPosition(sf::Vector2f{ 10.0f, static_cast<float>(WINDOW_LENGTH / 2)});
+    text.setStyle(sf::Text::Bold);
     currentGame->GetWindow().draw(text);
     currentGame->GetWindow().display();
 }
