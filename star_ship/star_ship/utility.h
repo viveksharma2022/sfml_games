@@ -1,9 +1,11 @@
 #pragma once
 #include <list>
 #include <algorithm>
+#include <SFML\graphics.hpp>
 
 struct Bullet;
 class Enemy;
+class Game;
 
 namespace Utility {
 	// TODO: change bullet from stack memory to unique pointer. Impact on speed to be taken into account
@@ -19,6 +21,7 @@ namespace Utility {
 		}
 	}
 
+	void CheckWindowClosed(Game* currentGame);
 	void CollisionCheck(std::list<Enemy>& enemies, std::list<Bullet>& bullets);
 
 	template<typename T>

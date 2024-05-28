@@ -75,6 +75,7 @@ public:
 		std::cout << "Enemy destroyed" << std::endl;
 	}
 	const sf::RectangleShape& GetHost() const { return host; }
+	const sf::Vector2f& GetEnemyPosition() const{ return position; }
 };
 
 class Player {
@@ -107,6 +108,7 @@ public:
 	~Render_API() { std::cout << "Deleted Render API" << std::endl; }
 	void Render(Game* currentGame);
 	void RenderPause(Game* currentGame);
+	void RenderGameOver(Game* currentGame);
 	void RenderBullets(sf::RenderWindow& mWindow, std::list<Bullet>& bulletList);
 	void RenderEnemies(sf::RenderWindow& mWindow, std::list<Enemy>& enemies);
 	void RenderScoreBoard(Game* currentGame);
@@ -143,6 +145,7 @@ public:
 	void	CreateEnemies();
 	void	UpdateEnemies();
 	void	UpdateScoreBoard();
+	void	CheckGameOver();
 };
 
 
