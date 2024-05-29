@@ -8,6 +8,7 @@
 #include <SFML\graphics.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/System/String.hpp>
+#include <SFML/Graphics/Color.hpp>
 #include "definitions.h"
 #include "utility.h"
 
@@ -15,6 +16,13 @@ class Game;
 const std::string playerImage = "resources\\starShip.jpg";
 constexpr float enemyVelocities[] = { 50.f,100.f,150.f,200.f,250.f,300.f }; // all possible velocities for enemy movement, unit: pixels/second
 constexpr uint16_t enemykillScore[] = { 100,200,300,400,700,1000 };
+static std::vector<sf::Color> enemyColors = { sf::Color(sf::Color::White),
+												sf::Color(sf::Color::Green),
+												sf::Color(sf::Color::Blue),
+												sf::Color(sf::Color::Yellow),
+												sf::Color(sf::Color::Cyan),
+												sf::Color(sf::Color::Magenta)
+											};
 static sf::Clock globalClock; 
 
 // utility to get array size
@@ -60,7 +68,7 @@ public:
 
 	Enemy() :
 		host(sf::Vector2f(ENEMY_WIDTH, ENEMY_HEIGHT)),
-		position({static_cast<float>(rand() % WINDOW_WIDTH - ENEMY_WIDTH - 1), 0.0f}), // randomly positions the player at start
+		position({static_cast<float>(rand() % WINDOW_WIDTH - ENEMY_WIDTH - 1), 0.1f}), // randomly positions the player at start
 		id(rand() % GetArraySize(enemyVelocities)),
 		isExist(true),
 		isNotCollided(true),
@@ -69,6 +77,7 @@ public:
 	{
 
 		host.setPosition(position); // set enemy initial position
+		host.setFillColor(enemyColors[id]); // set color to the enemy
 		std::cout << "Enemy created with velocity: " << velocity << std::endl;
 	}
 	~Enemy() {
