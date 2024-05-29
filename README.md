@@ -11,4 +11,5 @@ a faster enemy earns more points.
 * **Controls:**  
 	&#8592; move left  
 	&#8594; move right  
-	&#8679; shoot
+	&#8679; shoot  
+    *SPACE* pause
