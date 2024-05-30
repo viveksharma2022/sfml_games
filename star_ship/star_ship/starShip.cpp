@@ -89,38 +89,86 @@ void Game::CheckGameOver() {
         [](const Enemy& enemyPosition) {
             return (enemyPosition.GetEnemyPosition().y >= (WINDOW_LENGTH - SCORE_BOARD_HEIGHT - PLAYER_HEIGHT - 1)) ? true : false;
         })) {
-        gameStates = GAME_OVER;
+        TransitionTo(std::make_shared<GameOver>());
     }
 }
 
-void Game:: Run() {
+void Game::Run() {
     while (mWindow.isOpen()) {
-        // TODO: implement state design pattern
-        switch (gameStates) {
-            case GAME_RUNNING:
-                CheckGameOver();
-                PollEvents();
-                Utility::CollisionCheck(enemies, bullets);
-                UpdateScoreBoard();
-                UpdateBullets();
-                CreateEnemies();
-                UpdateEnemies();
-                this->renderAPI->Render(this);
-                break;
-            case GAME_PAUSED:
-                PollPauseEvent();
-                this->renderAPI->Render(this);
-                this->renderAPI->RenderPause(this);
-                globalClock.restart(); // reset clock (dt) otherwise it impacts enemy movement, enemy distance = dt * velocity
-                break;
-            case GAME_OVER:
-                Utility::CheckWindowClosed(this);
-                this->renderAPI->Render(this);
-                this->renderAPI->RenderGameOver(this);
-                break;
-        }
+        this->gameState->Render();
+        this->gameState->RunState();
     }
 }
+
+void Game::TransitionTo(std::shared_ptr<GameState> newState) {
+    if (this->gameState) {
+        gameState.reset();
+    }
+    this->gameState = newState;
+    this->gameState->SetContext(this);
+}
+
+void GameRunning::RunState() {
+    this->gameContext->CheckGameOver();
+    this->gameContext->PollEvents();
+    Utility::CollisionCheck(this->gameContext->enemies, this->gameContext->bullets);
+    this->gameContext->UpdateScoreBoard();
+    this->gameContext->UpdateBullets();
+    this->gameContext->CreateEnemies();
+    this->gameContext->UpdateEnemies();
+}
+
+void GamePaused::RunState() {
+    this->gameContext->PollPauseEvent();
+    globalClock.restart(); // reset clock (dt) otherwise it impacts enemy movement, enemy distance = dt * velocity
+}
+
+void GameOver::RunState() {
+    Utility::CheckWindowClosed(this->gameContext);
+}
+
+void GameRunning::Render() {
+    this->gameContext->renderAPI->Render(this->gameContext);
+}
+
+void GamePaused::Render() {
+    this->gameContext->renderAPI->Render(this->gameContext);
+    this->gameContext->renderAPI->RenderPause(this->gameContext);
+}
+
+void GameOver::Render() {
+    this->gameContext->renderAPI->Render(this->gameContext);
+    this->gameContext->renderAPI->RenderGameOver(this->gameContext);
+}
+
+//void Game:: Run() {
+//    while (mWindow.isOpen()) {
+//        // TODO: implement state design pattern
+//        switch (gameStates) {
+//            case GAME_RUNNING:
+//                CheckGameOver();
+//                PollEvents();
+//                Utility::CollisionCheck(enemies, bullets);
+//                UpdateScoreBoard();
+//                UpdateBullets();
+//                CreateEnemies();
+//                UpdateEnemies();
+//                this->renderAPI->Render(this);
+//                break;
+//            case GAME_PAUSED:
+//                PollPauseEvent();
+//                this->renderAPI->Render(this);
+//                this->renderAPI->RenderPause(this);
+//                globalClock.restart(); // reset clock (dt) otherwise it impacts enemy movement, enemy distance = dt * velocity
+//                break;
+//            case GAME_OVER:
+//                Utility::CheckWindowClosed(this);
+//                this->renderAPI->Render(this);
+//                this->renderAPI->RenderGameOver(this);
+//                break;
+//        }
+//    }
+//}
 
 inline void Utility::CheckWindowClosed(Game* currentGame) {
     // poll only for window close event

@@ -31,15 +31,49 @@ constexpr size_t GetArraySize(T(&)[N]) {
 	return N;
 }
 
-enum GameStatus {
+enum State {
 	GAME_OVER,
 	GAME_RUNNING,
 	GAME_PAUSED
 };
 
-inline GameStatus ExecuteSpaceKeyEvent(GameStatus status){
+inline Status ExecuteSpaceKeyEvent(Status status){
 	return (status == GAME_PAUSED) ? GAME_RUNNING : GAME_PAUSED;
 } 
+
+class GameState {
+protected:
+	Game* gameContext;
+	State state;
+public:
+	GameState(State state) :
+		gameContext(nullptr),
+		state(state) {}
+	virtual void RunState() = 0;
+	virtual void Render() = 0;
+	void SetContext(Game* gameContext) {
+		this->gameContext = gameContext;
+	}
+};
+
+class GameRunning : public GameState {
+public:
+	GameRunning() : GameState(GAME_RUNNING) {};
+	void RunState() override;
+	void Render() override;
+};
+
+class GamePaused : public GameState {
+public:
+	void RunState() override;
+	void Render() override;
+};
+
+class GameOver : public GameState {
+public:
+	void RunState() override;
+	void Render() override;
+};
 
 struct Bullet {
 	sf::RectangleShape	host;
@@ -123,13 +157,15 @@ public:
 	void RenderScoreBoard(Game* currentGame);
 };
 
+
+
 class Game {
 private:
 	sf::RenderWindow	mWindow;
-	std::shared_ptr<Render_API>	renderAPI;
 	std::unique_ptr<Player>	starShip;
-	GameStatus	gameStates;
+	std::shared_ptr<GameState> gameState;
 public:
+	std::shared_ptr<Render_API>	renderAPI;
 	Utility::ScoreBoard& scoreBoard;
 	sf::Font gameTextFont; // font for text display
 	Game(std::shared_ptr<Render_API> renderAPI,
@@ -138,10 +174,11 @@ public:
 		renderAPI(renderAPI),
 		scoreBoard(scoreBoard),
 		starShip(std::make_unique<Player>()),
-		gameStates(GAME_RUNNING)
+		gameState(std::make_shared<GameRunning>())
 	{
 		if (!gameTextFont.loadFromFile("resources\\arial.ttf")) {} // Load font
 	}
+	void TransitionTo(std::shared_ptr<GameState> state);
 	void	PollEvents();
 	void	PollPauseEvent();
 	void	Run();
