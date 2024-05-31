@@ -31,21 +31,6 @@ constexpr size_t GetArraySize(T(&)[N]) {
 	return N;
 }
 
-class GameState {
-protected:
-	Game* gameContext;
-public:
-	State state;
-	GameState(State state) :
-		gameContext(nullptr),
-		state(state) {}
-	virtual void RunState() = 0;
-	virtual void Render() = 0;
-	void SetContext(Game* gameContext) {
-		this->gameContext = gameContext;
-	}
-};
-
 struct Bullet {
 	sf::RectangleShape	host;
 	sf::Vector2f	position;
@@ -130,48 +115,26 @@ public:
 	void RenderScoreBoard(Game* currentGame);
 };
 
-class Game {
-private:
-	sf::RenderWindow	mWindow;
-	std::unique_ptr<Player>	starShip;
-	std::shared_ptr<GameState> gameState;
-public:
-	std::shared_ptr<Render_API>	renderAPI;
-	Utility::ScoreBoard& scoreBoard;
-	sf::Font gameTextFont; // font for text display
-	Game(std::shared_ptr<Render_API> renderAPI,
-		Utility::ScoreBoard& scoreBoard):
-		mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_LENGTH), "Star Ship game"),
-		renderAPI(renderAPI),
-		scoreBoard(scoreBoard),
-		starShip(std::make_unique<Player>()),
-		gameState(std::make_shared<GameRunning>())
-	{
-		if (!gameTextFont.loadFromFile("resources\\arial.ttf")) {} // Load font
-		this->gameState->SetContext(this); // the context of the state has to be set in the beginning
-	}
-	const std::shared_ptr<GameState>& GetGameState() const { return gameState; }
-	void	TransitionTo(std::shared_ptr<GameState> state);
-	void	PollEvents();
-	void	PollPauseEvent();
-	void	Run();
-	sf::RenderWindow&	GetWindow() { return this->mWindow; }
-	std::unique_ptr<Player>&	GetPlayer() { return this->starShip; }
-	void	HandlePlayerInputs(sf::Keyboard::Key key);
-	std::list<Bullet>	bullets;
-	std::list<Enemy>	enemies;
-	void	UpdateBullets();
-	void	CreateEnemies();
-	void	UpdateEnemies();
-	void	UpdateScoreBoard();
-	void	CheckGameOver();
-};
-
 // Game states and state design pattern below
 enum State {
 	GAME_OVER,
 	GAME_RUNNING,
 	GAME_PAUSED
+};
+
+class GameState {
+protected:
+	Game* gameContext;
+public:
+	State state;
+	GameState(State state) :
+		gameContext(nullptr),
+		state(state) {}
+	virtual void RunState() = 0;
+	virtual void Render() = 0;
+	void SetContext(Game* gameContext) {
+		this->gameContext = gameContext;
+	}
 };
 
 class GameRunning : public GameState {
@@ -193,6 +156,43 @@ public:
 	GameOver() : GameState(GAME_OVER) {};
 	void RunState() override;
 	void Render() override;
+};
+
+class Game {
+private:
+	sf::RenderWindow	mWindow;
+	std::unique_ptr<Player>	starShip;
+	std::shared_ptr<GameState> gameState;
+public:
+	std::shared_ptr<Render_API>	renderAPI;
+	Utility::ScoreBoard& scoreBoard;
+	sf::Font gameTextFont; // font for text display
+	Game(std::shared_ptr<Render_API> renderAPI,
+		Utility::ScoreBoard& scoreBoard) :
+		mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_LENGTH), "Star Ship game"),
+		renderAPI(renderAPI),
+		scoreBoard(scoreBoard),
+		starShip(std::make_unique<Player>()),
+		gameState(std::make_shared<GameRunning>())
+	{
+		if (!gameTextFont.loadFromFile("resources\\arial.ttf")) {} // Load font
+		this->gameState->SetContext(this); // the context of the state has to be set in the beginning
+	}
+	const std::shared_ptr<GameState>& GetGameState() const { return gameState; }
+	void	TransitionTo(std::shared_ptr<GameState> state);
+	void	PollEvents();
+	void	PollPauseEvent();
+	void	Run();
+	sf::RenderWindow& GetWindow() { return this->mWindow; }
+	std::unique_ptr<Player>& GetPlayer() { return this->starShip; }
+	void	HandlePlayerInputs(sf::Keyboard::Key key);
+	std::list<Bullet>	bullets;
+	std::list<Enemy>	enemies;
+	void	UpdateBullets();
+	void	CreateEnemies();
+	void	UpdateEnemies();
+	void	UpdateScoreBoard();
+	void	CheckGameOver();
 };
 
 // A single function to toggle between pause and run
