@@ -140,6 +140,7 @@ public:
 class GameRunning : public GameState {
 public:
 	GameRunning() : GameState(GAME_RUNNING) {};
+	~GameRunning() { std::cout << "Game-running state destroyed" << std::endl; }
 	void RunState() override;
 	void Render() override;
 };
@@ -147,6 +148,7 @@ public:
 class GamePaused : public GameState {
 public:
 	GamePaused() : GameState(GAME_PAUSED) {};
+	~GamePaused() { std::cout << "Game-paused state destroyed" << std::endl; }
 	void RunState() override;
 	void Render() override;
 };
@@ -154,6 +156,7 @@ public:
 class GameOver : public GameState {
 public:
 	GameOver() : GameState(GAME_OVER) {};
+	~GameOver() { std::cout << "Game-over state destroyed" << std::endl; }
 	void RunState() override;
 	void Render() override;
 };
