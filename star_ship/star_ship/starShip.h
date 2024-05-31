@@ -31,21 +31,11 @@ constexpr size_t GetArraySize(T(&)[N]) {
 	return N;
 }
 
-enum State {
-	GAME_OVER,
-	GAME_RUNNING,
-	GAME_PAUSED
-};
-
-inline Status ExecuteSpaceKeyEvent(Status status){
-	return (status == GAME_PAUSED) ? GAME_RUNNING : GAME_PAUSED;
-} 
-
 class GameState {
 protected:
 	Game* gameContext;
-	State state;
 public:
+	State state;
 	GameState(State state) :
 		gameContext(nullptr),
 		state(state) {}
@@ -54,25 +44,6 @@ public:
 	void SetContext(Game* gameContext) {
 		this->gameContext = gameContext;
 	}
-};
-
-class GameRunning : public GameState {
-public:
-	GameRunning() : GameState(GAME_RUNNING) {};
-	void RunState() override;
-	void Render() override;
-};
-
-class GamePaused : public GameState {
-public:
-	void RunState() override;
-	void Render() override;
-};
-
-class GameOver : public GameState {
-public:
-	void RunState() override;
-	void Render() override;
 };
 
 struct Bullet {
@@ -145,6 +116,8 @@ public:
 	const sf::Vector2f&			GetPlayerPosition();
 };
 
+// Game rendering: it is made external and aggregated into the game..
+// offers easy extensivity if required
 class Render_API {	
 public:
 	Render_API() = default;
@@ -156,8 +129,6 @@ public:
 	void RenderEnemies(sf::RenderWindow& mWindow, std::list<Enemy>& enemies);
 	void RenderScoreBoard(Game* currentGame);
 };
-
-
 
 class Game {
 private:
@@ -177,8 +148,10 @@ public:
 		gameState(std::make_shared<GameRunning>())
 	{
 		if (!gameTextFont.loadFromFile("resources\\arial.ttf")) {} // Load font
+		this->gameState->SetContext(this); // the context of the state has to be set in the beginning
 	}
-	void TransitionTo(std::shared_ptr<GameState> state);
+	const std::shared_ptr<GameState>& GetGameState() const { return gameState; }
+	void	TransitionTo(std::shared_ptr<GameState> state);
 	void	PollEvents();
 	void	PollPauseEvent();
 	void	Run();
@@ -194,7 +167,37 @@ public:
 	void	CheckGameOver();
 };
 
+// Game states and state design pattern below
+enum State {
+	GAME_OVER,
+	GAME_RUNNING,
+	GAME_PAUSED
+};
 
+class GameRunning : public GameState {
+public:
+	GameRunning() : GameState(GAME_RUNNING) {};
+	void RunState() override;
+	void Render() override;
+};
 
+class GamePaused : public GameState {
+public:
+	GamePaused() : GameState(GAME_PAUSED) {};
+	void RunState() override;
+	void Render() override;
+};
 
+class GameOver : public GameState {
+public:
+	GameOver() : GameState(GAME_OVER) {};
+	void RunState() override;
+	void Render() override;
+};
 
+// A single function to toggle between pause and run
+inline void ExecuteSpaceKeyEvent(Game* currentGame) {
+	(currentGame->GetGameState()->state == GAME_PAUSED) ?
+		currentGame->TransitionTo(std::make_shared<GameRunning>()) :
+		currentGame->TransitionTo(std::make_shared<GamePaused>());
+}
