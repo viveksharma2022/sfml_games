@@ -2,6 +2,8 @@
 #include <list>
 #include <algorithm>
 #include <SFML\graphics.hpp>
+#include "definitions.h"
+#include "rapidjson/document.h"
 
 struct Bullet;
 class Enemy;
@@ -59,4 +61,8 @@ namespace Utility {
 		}
 		const sf::Vector2f& GetScoreBoardPosition() const { return position; }
 	};
+
+	namespace FileIO {
+		static rapidjson::Document& ReadConfigFile(const char* jsonFile);
+	}
 }

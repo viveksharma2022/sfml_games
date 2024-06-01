@@ -16,8 +16,10 @@ void Game::TransitionTo(std::shared_ptr<GameState> newState) {
 }
 
 void GameRunning::RunState() {
-    this->gameContext->CheckGameOver();
-    this->gameContext->PollEvents();
+    this->gameContext->CheckGameOver();// transition point
+    if (this->state != GAME_RUNNING) { return; }// exit the function if state has changed - comes immediately after transition point
+    this->gameContext->PollEvents(); // transition point
+    if (this->state != GAME_RUNNING) {return;}// exit the function if state has changed - comes immediately after transition point
     Utility::CollisionCheck(this->gameContext->enemies, this->gameContext->bullets);
     this->gameContext->UpdateScoreBoard();
     this->gameContext->UpdateBullets();
@@ -26,11 +28,13 @@ void GameRunning::RunState() {
 }
 
 void GamePaused::RunState() {
-    this->gameContext->PollPauseEvent();
+    this->gameContext->PollPauseEvent(); // transition point
+    if (this->state != GAME_PAUSED) {return;}// exit the function if state has changed - comes immediately after transition point
     globalClock.restart(); // reset clock (dt) otherwise it impacts enemy movement, enemy distance = dt * velocity
 }
 
 void GameOver::RunState() {
+    if (this->state != GAME_OVER) { return; }// exit the function if state has changed
     Utility::CheckWindowClosed(this->gameContext);
 }
 
@@ -224,9 +228,9 @@ void Render_API::RenderScoreBoard(Game* currentGame) {
 void Utility::CollisionCheck(std::list<Enemy>& enemies, std::list<Bullet>& bullets) {
     // check collision of enemies with bullets
     for (auto& e : enemies) {
-        // fine optimization may be needed, as early stopping is not enabled in std::any_of, it goes through all the list of bullets,
+        // fine optimization may be needed, as early stopping is not enabled in std::for_each, it goes through all the list of bullets,
         // a handwriiten function may be necessary
-        std::any_of(bullets.begin(), bullets.end(), [&e](Bullet& b) {
+        std::for_each(bullets.begin(), bullets.end(), [&e](Bullet& b) {
             if (e.GetHost().getGlobalBounds().intersects(b.host.getGlobalBounds())) {
                 // destroy bullet and enemy
                 e.isNotCollided = false;

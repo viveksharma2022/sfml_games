@@ -79,11 +79,11 @@
     <LibraryPath>C:\Users\Vivek\Documents\GitHub\SFML-2.6.1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Vivek\Documents\GitHub\SFML-2.6.1\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\vivek\Documents\GitHub\rapidjson\include;C:\Users\Vivek\Documents\GitHub\SFML-2.6.1\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Vivek\Documents\GitHub\SFML-2.6.1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Vivek\Documents\GitHub\SFML-2.6.1\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\vivek\Documents\GitHub\rapidjson\include;C:\Users\Vivek\Documents\GitHub\SFML-2.6.1\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Vivek\Documents\GitHub\SFML-2.6.1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="starShip.cpp" />
+    <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
