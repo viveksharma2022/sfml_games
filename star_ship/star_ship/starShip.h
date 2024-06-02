@@ -14,6 +14,7 @@
 
 class Game;
 const std::string playerImage = "resources\\starShip.jpg";
+const std::string gameFont = "resources\\arial.ttf";
 constexpr float enemyVelocities[] = { 50.f,100.f,150.f,200.f,250.f,300.f }; // all possible velocities for enemy movement, unit: pixels/second
 constexpr uint16_t enemykillScore[] = { 100,200,300,400,700,1000 };
 static std::vector<sf::Color> enemyColors = { sf::Color(sf::Color::White),
@@ -88,7 +89,7 @@ public:
 		playerHost(sf::Vector2f(PLAYER_WIDTH, PLAYER_HEIGHT))
 	{
 		playerHost.setPosition(position); // set the initial position of the player
-		if (playerTexture.loadFromFile(playerImage)){
+		if (playerTexture.loadFromFile(playerImage)) {
 			playerHost.setTexture(&playerTexture);// set the texture for the player
 		} 
 	}
@@ -172,13 +173,13 @@ public:
 	sf::Font gameTextFont; // font for text display
 	Game(std::shared_ptr<Render_API> renderAPI,
 		Utility::ScoreBoard& scoreBoard) :
-		mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_LENGTH), "Star Ship game"),
+		mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_LENGTH), "Star-Ship game"),
 		renderAPI(renderAPI),
 		scoreBoard(scoreBoard),
 		starShip(std::make_unique<Player>()),
 		gameState(std::make_shared<GameRunning>())
 	{
-		if (!gameTextFont.loadFromFile("resources\\arial.ttf")) {} // Load font
+		if (!gameTextFont.loadFromFile(gameFont)) {} // Load font
 		this->gameState->SetContext(this); // the context of the state has to be set in the beginning
 	}
 	const std::shared_ptr<GameState>& GetGameState() const { return gameState; }
