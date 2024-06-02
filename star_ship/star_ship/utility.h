@@ -3,10 +3,6 @@
 #include <algorithm>
 #include <SFML\graphics.hpp>
 #include "definitions.h"
-#include "rapidjson/document.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/filereadstream.h"
 #include <filesystem>
 #include <cstdio>
 
@@ -67,8 +63,4 @@ namespace Utility {
 		const sf::Vector2f& GetScoreBoardPosition() const { return position; }
 	};
 
-	namespace FileIO {
-		rapidjson::Document& ReadConfigFile(const char* jsonFile);
-		void GetFilePaths(rapidjson::Document& jsonDoc);
-	}
 }

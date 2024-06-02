@@ -1,8 +1,8 @@
 #include "starShip.h"
-
+#include "utility.h"
 
 int main() {
-	// read config file
+	
 	srand((unsigned)time(NULL)); // seed for random number generation
 	std::shared_ptr<Render_API> renderAPI	= std::make_shared<Render_API>();
 	Utility::ScoreBoard& scoreBoard			= Utility::ScoreBoard::CreateScoreBoard();
