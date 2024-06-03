@@ -1,9 +1,9 @@
 #pragma once
 #define TILE_WIDTH 50
 #define TILE_HEIGHT 50
-#define MAP_WIDTH 10
-#define MAP_HEIGHT 10 
-
-
+#define MAP_GRIDS_X 10
+#define MAP_GRIDS_Y 10 
+#define MAP_WIDTH MAP_GRIDS_X*TILE_WIDTH
+#define MAP_HEIGHT MAP_GRIDS_Y*TILE_HEIGHT
 
 

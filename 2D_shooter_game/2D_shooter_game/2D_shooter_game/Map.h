@@ -3,6 +3,11 @@
 #include "definitions.h"
 #include "sfml\Graphics.hpp"
 
+const std::string grassTexFile = "assets\\grass.jpg";
+const std::string brickTexFile = "assets\\brick.jpg";
+static sf::Texture grassTexture;
+static sf::Texture brickTexture;
+
 enum ObjectPenetrationType {
 	TRANSPARENT,
 	OPAQUE
@@ -12,70 +17,75 @@ enum ObjectType {
 	GRASS,
 	TREES,
 	WATER,
-	WOODEN_BLOCKS
+	BRICK
 };
 
 class MapTile {
 protected:
 	sf::Vector2f position;
 	sf::RectangleShape host;
-	sf::Texture texture;
 	ObjectPenetrationType objPenetrationType;
 	ObjectType objType;
 public:
-	MapTile(sf::Vector2f position, const std::string& texFile, 
+	MapTile(sf::Vector2f position, 
 		ObjectPenetrationType objPenetrationType,
 		ObjectType objType):
 		position(position),
-		host({ TILE_WIDTH, TILE_HEIGHT }),
+		host(sf::Vector2f({ TILE_WIDTH, TILE_HEIGHT })),
 		objPenetrationType(objPenetrationType),
 		objType(objType)
-	{
-		host.setPosition(position); // set the initial position of the player
-		if (texture.loadFromFile(texFile)) {
-			host.setTexture(&texture);// set the texture for the player
-		}
-	}
+	{}
 	void SetPosition(sf::Vector2f& position) {
 		this->position = position;
 	}
 	const sf::Vector2f& GetPosition() {
 		return this->position;
 	}
+	sf::RectangleShape& GetHost() { return host; };
 };
 
 class Trees: public MapTile {
 public:
-	Trees(sf::Vector2f position, const std::string& texFile) :
-		MapTile(position, texFile, ObjectPenetrationType::OPAQUE, ObjectType::TREES) {}
+	Trees(sf::Vector2f position) :
+		MapTile(position, ObjectPenetrationType::OPAQUE, ObjectType::TREES) {}
 };
 
-class WoodenBlocks : public MapTile {
+class Brick : public MapTile {
 public:
-	WoodenBlocks(sf::Vector2f position, const std::string& texFile) :
-		MapTile(position, texFile, ObjectPenetrationType::OPAQUE, ObjectType::WOODEN_BLOCKS) {}
+	Brick(sf::Vector2f position) :
+		MapTile(position, ObjectPenetrationType::OPAQUE, ObjectType::BRICK) {
+		host.setPosition(position); // set the initial position of the host
+		if (brickTexture.loadFromFile(brickTexFile)) {
+			host.setTexture(&brickTexture);// set the texture for the host
+		}
+	}
 };
 
 class Water : public MapTile {
 public:
-	Water(sf::Vector2f position, const std::string& texFile) :
-		MapTile(position, texFile, ObjectPenetrationType::TRANSPARENT, ObjectType::WATER) {}
+	Water(sf::Vector2f position) :
+		MapTile(position, ObjectPenetrationType::TRANSPARENT, ObjectType::WATER) {}
 };
 
 class Grass : public MapTile {
 public:
-	Grass(sf::Vector2f position, const std::string& texFile) :
-		MapTile(position, texFile, ObjectPenetrationType::TRANSPARENT, ObjectType::GRASS) {}
+	Grass(sf::Vector2f position) :
+		MapTile(position, ObjectPenetrationType::TRANSPARENT, ObjectType::GRASS) {
+		host.setPosition(position); // set the initial position of the host
+		if (grassTexture.loadFromFile(grassTexFile)) {
+			host.setTexture(&grassTexture);// set the texture for the host
+		}
+	}
 };
 
-constexpr bool map[MAP_WIDTH][MAP_HEIGHT] = {
+constexpr ObjectType map[MAP_GRIDS_X][MAP_GRIDS_Y] = {
 	{GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS},
 	{GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS},
 	{GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS},
 	{GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS},
-	{GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS},
-	{GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS},
-	{GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS},
+	{GRASS, GRASS, GRASS, BRICK, BRICK, BRICK, GRASS, GRASS, GRASS, GRASS},
+	{GRASS, GRASS, GRASS, BRICK, BRICK, BRICK, GRASS, GRASS, GRASS, GRASS},
+	{GRASS, GRASS, GRASS, BRICK, BRICK, BRICK, GRASS, GRASS, GRASS, GRASS},
 	{GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS},
 	{GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS},
 	{GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS, GRASS}

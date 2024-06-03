@@ -2,8 +2,11 @@
 #include <iostream>
 #include "sfml\Graphics.hpp"
 #include "Map.h"
+#include "Utility.h"
 
 class Game;
+class App;
+
 enum GameStates {
 	GAME_RUNNING,
 	GAME_PAUSED,
@@ -39,12 +42,37 @@ public:
 
 class Game {
 private:
-	std::vector <MapTile> tiles;
-	std::unique_ptr<GameState> gameState;
+	std::shared_ptr<GameState> gameState;
 public:
+	App* appReference; // a reference of app is always provided to all submodules
+	std::vector <MapTile> tiles;
 	Game() :
-		gameState(std::move(std::make_unique<GameRunning>())) {
+		appReference(nullptr),
+		gameState(std::make_shared<GameRunning>()) // TODO: set the game state to DO_NOTHING
+	{
+		this->gameState->SetContext(this); // the context of the state has to be set in the beginning
 		InitializeMap();
 	}
+	~Game() { std::cout << "Game destroyed" << "\n"; }
 	void InitializeMap();
+	void TransitionTo(std::unique_ptr<GameState>&& state);
+	const std::shared_ptr<GameState>& GetGameState() const { return gameState; }
+	void SetAppReference(App* appReference) {
+		this->appReference = appReference;
+	}
+};
+
+class App {
+public:
+	sf::RenderWindow	mWindow;
+	std::shared_ptr<Game> game;
+	App():
+		game(std::make_shared<Game>()),
+		mWindow(sf::VideoMode(MAP_WIDTH, MAP_HEIGHT), "2D-shooter Game")
+	{
+		this->game->SetAppReference(this);
+	}
+	~App() { std::cout << "App destroyed" << "\n"; }
+	void RunApp();
+
 };
