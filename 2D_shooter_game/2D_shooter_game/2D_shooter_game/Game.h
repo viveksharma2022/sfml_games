@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include "sfml\Graphics.hpp"
+#include "Map.h"
 
 class Game;
 enum GameStates {
@@ -37,7 +38,13 @@ public:
 };
 
 class Game {
-
-
-
+private:
+	std::vector <MapTile> tiles;
+	std::unique_ptr<GameState> gameState;
+public:
+	Game() :
+		gameState(std::move(std::make_unique<GameRunning>())) {
+		InitializeMap();
+	}
+	void InitializeMap();
 };
