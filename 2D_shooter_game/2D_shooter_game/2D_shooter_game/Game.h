@@ -4,6 +4,9 @@
 #include "Map.h"
 #include "Utility.h"
 
+const std::string playerTexFile = "assets\\player.png";
+static sf::Texture playerTexture;
+
 class Game;
 class App;
 
@@ -40,15 +43,46 @@ public:
 	void PollEvents();
 };
 
+class Player {
+private:
+	sf::RectangleShape host; // host position of the player on the screen
+	sf::Vector2f position;
+public:
+	Player() :
+		// x-position is initialized to TILE_WIDTH, because the 
+		// texture is flipped and the origin is now at top right instead
+		// of top left
+		position({TILE_WIDTH, MAP_HEIGHT-2*TILE_HEIGHT }), 
+		host(sf::Vector2f(PLAYER_WIDTH, PLAYER_HEIGHT))
+	{
+		host.setPosition(position); // set the initial position of the player
+		if (playerTexture.loadFromFile(playerTexFile)) {
+			host.setTexture(&playerTexture);// set the texture for the player
+		}
+		// flip texture horizontally, as player image is facing left
+		// origin is now at top-right
+		host.setScale(-1, 1);  
+	}
+	~Player() {
+		std::cout << "Player destructed" << std::endl;
+	}
+	// utlity functions for player
+	const sf::RectangleShape& GetPlayerHost() const { return host; }
+	void SetPlayerPosition(sf::Vector2f newPosition);
+	const sf::Vector2f& GetPlayerPosition() const { return position; };
+};
+
 class Game {
 private:
 	std::shared_ptr<GameState> gameState;
+	std::unique_ptr<Player> player;
 public:
 	App* appReference; // a reference of app is always provided to all submodules
 	std::vector <MapTile> tiles;
 	Game() :
 		appReference(nullptr),
-		gameState(std::make_shared<GameRunning>()) // TODO: set the game state to DO_NOTHING
+		gameState(std::make_shared<GameRunning>()), // TODO: set the game state to DO_NOTHING
+		player(std::make_unique<Player>())
 	{
 		this->gameState->SetContext(this); // the context of the state has to be set in the beginning
 		InitializeMap();
@@ -60,6 +94,7 @@ public:
 	void SetAppReference(App* appReference) {
 		this->appReference = appReference;
 	}
+	const std::unique_ptr<Player>& GetPlayer() const { return player; }
 };
 
 class App {

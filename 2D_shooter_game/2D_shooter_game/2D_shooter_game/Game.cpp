@@ -15,6 +15,10 @@ void Game::InitializeMap() {
 	}
 }
 
+void Player::SetPlayerPosition(sf::Vector2f newPosition) {
+	this->position = newPosition;
+}
+
 void Game::TransitionTo(std::unique_ptr<GameState>&& newState) {
 	if (this->gameState) {
 		gameState.reset();
@@ -41,8 +45,12 @@ void GameRunning::PollEvents() {
 }
 
 void GameRunning::RenderGame() {
+	this->gameContext->appReference->mWindow.clear();
 	Utility::RenderMap(this->gameContext->appReference->mWindow,
 		this->gameContext->tiles);
+	Utility::RenderPlayer(this->gameContext->appReference->mWindow,
+		this->gameContext->GetPlayer());
+	this->gameContext->appReference->mWindow.display();
 }
 
 void GameRunning::RunGame() {
@@ -56,4 +64,8 @@ void App::RunApp() {
 		this->game->GetGameState()->RunGame();
 		// ADD Menu run
 	}
+}
+
+void Utility::RenderPlayer(sf::RenderWindow& mWindow, const std::unique_ptr<Player>& player) {
+	mWindow.draw(player->GetPlayerHost());
 }
