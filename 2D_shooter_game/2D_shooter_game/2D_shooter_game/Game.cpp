@@ -5,10 +5,10 @@ void Game::InitializeMap() {
 		for (int y = 0; y < MAP_GRIDS_Y; y++) {
 			switch (map[x][y]) {
 				case(GRASS):
-					this->tiles.push_back(Grass({ static_cast<float>(x * TILE_WIDTH),static_cast<float>(y * TILE_HEIGHT) }));
+					this->tiles.push_back(Grass({ static_cast<float>(y * TILE_HEIGHT),static_cast<float>(x * TILE_WIDTH) }));
 					break;
 				case(BRICK):
-					this->tiles.push_back(Brick({ static_cast<float>(x * TILE_WIDTH),static_cast<float>(y * TILE_HEIGHT) }));
+					this->tiles.push_back(Brick({ static_cast<float>(y * TILE_HEIGHT),static_cast<float>(x * TILE_WIDTH) }));
 					break;
 			}
 		}
