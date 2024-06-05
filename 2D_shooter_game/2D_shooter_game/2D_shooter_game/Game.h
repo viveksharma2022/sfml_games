@@ -60,10 +60,12 @@ private:
 	sf::Vector2f position;
 	Orientation playerOrientation;
 public:
+	sf::Vector2f velocity;
 	Player() :
-		position({0.0f, MAP_HEIGHT-2*TILE_HEIGHT }), 
+		position({1.0f, MAP_HEIGHT-2*TILE_HEIGHT }), 
 		host(sf::Vector2f(PLAYER_WIDTH, PLAYER_HEIGHT)),
-		playerOrientation(RIGHT)
+		playerOrientation(RIGHT),
+		velocity({0.0f, 0.0f })
 	{
 		host.setPosition(position); // set the initial position of the player
 		if (playerTexture.loadFromFile(playerTexFile)) {
@@ -88,6 +90,8 @@ public:
 		this->playerOrientation = newOrientation;
 	}
 	void HandlePlayerInputs(sf::Keyboard::Key key);
+	void PlayerUpdatePosition();
+	void PlayerDampenVelocity();
 };
 
 class Game {

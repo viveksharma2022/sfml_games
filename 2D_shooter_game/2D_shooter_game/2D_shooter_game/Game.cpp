@@ -46,30 +46,33 @@ void GameRunning::PollEvents() {
 		default:
 			break;
 		}
-
 	}
-
 }
 
 void Player::HandlePlayerInputs(sf::Keyboard::Key key) {
-	sf::Vector2f playerCurrentPosition = GetPlayerPosition();
+	// player movements are dependent on the velocity component
+	// velocity is proportional to the acceleration provided, i.e.,
+	// every movement-button pressed, adds accelaration vector and 
+	// which is accumulated to the velocity. A no button press would 
+	// normally dampen the velocity and is implemented in anoher
+	// following function call
+	//
+	sf::Vector2f acceleration;
+	// movement parts
 	if (key == sf::Keyboard::Left) {
-		this->SetPlayerPosition({ Utility::BoundCheck(playerCurrentPosition,
-			{playerCurrentPosition.x - 1.0f,playerCurrentPosition.y}) });
+		acceleration.x -= PLAYER_STEP_ACCELERATION;
 	}
 	else if (key == sf::Keyboard::Right) {
-		this->SetPlayerPosition({ Utility::BoundCheck(playerCurrentPosition,
-					{playerCurrentPosition.x + 1.0f,playerCurrentPosition.y }) });
+		acceleration.x += PLAYER_STEP_ACCELERATION;
 	}
 	else if (key == sf::Keyboard::Up) {
-		this->SetPlayerPosition({ Utility::BoundCheck(playerCurrentPosition,
-					{playerCurrentPosition.x,playerCurrentPosition.y - 1.0f }) });
+		acceleration.y -= PLAYER_STEP_ACCELERATION;
 	}
 	else if (key == sf::Keyboard::Down) {
-		this->SetPlayerPosition({ Utility::BoundCheck(playerCurrentPosition,
-					{playerCurrentPosition.x,playerCurrentPosition.y + 1.0f }) });
+		acceleration.y += PLAYER_STEP_ACCELERATION;
 	}
-
+	// accumulate to velocity
+	velocity += acceleration;
 }
 
 void GameRunning::RenderGame() {
@@ -84,7 +87,26 @@ void GameRunning::RenderGame() {
 void GameRunning::RunGame() {
 	PollEvents();
 	if (!this->state == GAME_RUNNING) { return; }
+	this->gameContext->GetPlayer()->PlayerUpdatePosition();
+	this->gameContext->GetPlayer()->PlayerDampenVelocity();
 	RenderGame();
+}
+
+void Player::PlayerUpdatePosition() {
+	sf::Vector2f playerUpdatedPosition;
+	sf::Vector2f playerCurrentPosition = GetPlayerPosition();
+	//add to the current position
+	playerUpdatedPosition = playerCurrentPosition + velocity;
+	// set position only if they are within the bounds of the display window
+	this->SetPlayerPosition({ Utility::BoundCheck(playerCurrentPosition,
+	playerUpdatedPosition) });
+}
+
+void Player::PlayerDampenVelocity() {
+	// dampen the velocity if nothing is pressed, normal act of 
+	// decelerations
+	velocity.x *= PLAYER_DAMPENING_COEFFICIENT; 
+	velocity.y *= PLAYER_DAMPENING_COEFFICIENT;
 }
 
 void App::RunApp() {
@@ -104,6 +126,6 @@ Orientation Utility::SwitchOrientation(Orientation currentOrientation) {
 
 const sf::Vector2f& Utility::BoundCheck(const sf::Vector2f& currentValue, const sf::Vector2f& newValue) {
 	// restrict values within the game windowss
-	return  (newValue.x >= 0.0f && newValue.x <= MAP_WIDTH - TILE_WIDTH - 1
-		&& newValue.y >= 0.0f && newValue.y <= MAP_HEIGHT - TILE_HEIGHT - 1) ? newValue : currentValue;
+	return  (newValue.x >= 1.0f && newValue.x <= MAP_WIDTH - TILE_WIDTH - 1
+		&& newValue.y >= 1.0f && newValue.y <= MAP_HEIGHT - TILE_HEIGHT - 1) ? newValue : currentValue;
 }
