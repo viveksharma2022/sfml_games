@@ -2,6 +2,7 @@
 #include "Game.h"
 
 class Player;
+enum Orientation;
 
 namespace Utility {
 	template<typename T>
@@ -12,4 +13,8 @@ namespace Utility {
 	}
 	
 	void RenderPlayer(sf::RenderWindow& mWindow, const std::unique_ptr<Player>& player);
+	inline Orientation SwitchOrientation(Orientation currentOrientation);
+
+	const sf::Vector2f& BoundCheck(const sf::Vector2f& currentValue, const sf::Vector2f& newValue);
+
 }

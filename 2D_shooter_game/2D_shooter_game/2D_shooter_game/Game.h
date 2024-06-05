@@ -10,11 +10,22 @@ static sf::Texture playerTexture;
 class Game;
 class App;
 
+enum Orientation {
+	LEFT,
+	RIGHT
+};
+
 enum GameStates {
 	GAME_RUNNING,
 	GAME_PAUSED,
 	GAME_OVER,
 	DO_NOTHING
+};
+
+class Bullet {
+private:
+
+
 };
 
 class GameState {
@@ -47,29 +58,36 @@ class Player {
 private:
 	sf::RectangleShape host; // host position of the player on the screen
 	sf::Vector2f position;
+	Orientation playerOrientation;
 public:
 	Player() :
-		// x-position is initialized to TILE_WIDTH, because the 
-		// texture is flipped and the origin is now at top right instead
-		// of top left
-		position({TILE_WIDTH, MAP_HEIGHT-2*TILE_HEIGHT }), 
-		host(sf::Vector2f(PLAYER_WIDTH, PLAYER_HEIGHT))
+		position({0.0f, MAP_HEIGHT-2*TILE_HEIGHT }), 
+		host(sf::Vector2f(PLAYER_WIDTH, PLAYER_HEIGHT)),
+		playerOrientation(RIGHT)
 	{
 		host.setPosition(position); // set the initial position of the player
 		if (playerTexture.loadFromFile(playerTexFile)) {
 			host.setTexture(&playerTexture);// set the texture for the player
 		}
 		// flip texture horizontally, as player image is facing left
-		// origin is now at top-right
+		// origin is now at top-right and top-left = -TILE_WIDTH
 		host.setScale(-1, 1);  
+		// x-position of origin is offset by TILE_WIDTH to bring
+		// back the origin to top-left
+		host.setOrigin({ TILE_WIDTH,0 });
 	}
 	~Player() {
 		std::cout << "Player destructed" << std::endl;
 	}
 	// utlity functions for player
-	const sf::RectangleShape& GetPlayerHost() const { return host; }
+	sf::RectangleShape& GetPlayerHost() { return host; }
 	void SetPlayerPosition(sf::Vector2f newPosition);
-	const sf::Vector2f& GetPlayerPosition() const { return position; };
+	const sf::Vector2f& GetPlayerPosition() const { return position; }
+	const Orientation& GetPlayerOrientation() const { return playerOrientation; }
+	void SetPlayerOrientation(Orientation& newOrientation) {
+		this->playerOrientation = newOrientation;
+	}
+	void HandlePlayerInputs(sf::Keyboard::Key key);
 };
 
 class Game {
