@@ -14,7 +14,6 @@ namespace Utility {
 	
 	void RenderPlayer(sf::RenderWindow& mWindow, const std::unique_ptr<Player>& player);
 	inline Orientation SwitchOrientation(Orientation currentOrientation);
-
 	bool IsExceedingBoundary(const sf::Vector2f& currentValue, const sf::Vector2f& newValue);
-
+	bool IsTouchingOpaques(const sf::Vector2f& position, const std::vector<MapTile>& tiles);
 }

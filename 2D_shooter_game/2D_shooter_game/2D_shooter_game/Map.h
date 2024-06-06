@@ -8,6 +8,10 @@ const std::string brickTexFile = "assets\\brick.jpg";
 static sf::Texture grassTexture;
 static sf::Texture brickTexture;
 
+// neighbouring pixels in tiled-coordinates, {0,0} is the current given position  
+const std::vector<sf::Vector2i> sampledTileIndices { {0,0},{1,0},
+	{0,1},{1,1} };
+
 enum ObjectPenetrationType {
 	TRANSPARENT,
 	OPAQUE
@@ -43,6 +47,7 @@ public:
 		return this->position;
 	}
 	sf::RectangleShape& GetHost() { return host; };
+	const ObjectPenetrationType& GetObjectPenetrationType() const { return objPenetrationType; }
 };
 
 class Trees: public MapTile {

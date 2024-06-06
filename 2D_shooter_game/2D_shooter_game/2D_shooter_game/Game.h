@@ -7,6 +7,7 @@
 const std::string playerTexFile = "assets\\player.png";
 static sf::Texture playerTexture;
 
+
 class Game;
 class App;
 
@@ -84,7 +85,7 @@ public:
 	// utlity functions for player
 	sf::RectangleShape& GetPlayerHost() { return host; }
 	void SetPlayerPosition(sf::Vector2f newPosition);
-	const sf::Vector2f& GetPlayerPosition() const { return position; }
+	const sf::Vector2f& GetPosition() const { return position; }
 	const Orientation& GetPlayerOrientation() const { return playerOrientation; }
 	void SetPlayerOrientation(Orientation& newOrientation) {
 		this->playerOrientation = newOrientation;
@@ -117,6 +118,7 @@ public:
 		this->appReference = appReference;
 	}
 	const std::unique_ptr<Player>& GetPlayer() const { return player; }
+	void CheckBoundaryConditionsForPlayer();
 };
 
 class App {

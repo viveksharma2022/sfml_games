@@ -5,7 +5,7 @@
 #define MAP_GRIDS_Y 10 
 #define MAP_WIDTH MAP_GRIDS_X*TILE_WIDTH
 #define MAP_HEIGHT MAP_GRIDS_Y*TILE_HEIGHT
-#define PLAYER_WIDTH TILE_WIDTH - 2
-#define PLAYER_HEIGHT TILE_HEIGHT - 2
+#define PLAYER_WIDTH TILE_WIDTH - 20
+#define PLAYER_HEIGHT TILE_HEIGHT - 20
 #define PLAYER_STEP_ACCELERATION 0.1f // acceleration-decelration step for each movement button-pressed
 #define PLAYER_DAMPENING_COEFFICIENT 0.99f //velocity dampening factor for each non-movement button-pressed-iteration
