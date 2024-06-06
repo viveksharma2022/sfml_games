@@ -97,9 +97,18 @@ void Player::PlayerUpdatePosition() {
 	sf::Vector2f playerCurrentPosition = GetPlayerPosition();
 	//add to the current position
 	playerUpdatedPosition = playerCurrentPosition + velocity;
-	// set position only if they are within the bounds of the display window
-	this->SetPlayerPosition({ Utility::BoundCheck(playerCurrentPosition,
-	playerUpdatedPosition) });
+	// set new position only if they are within the bounds of the display window
+	if (!Utility::IsExceedingBoundary(playerCurrentPosition,
+		playerUpdatedPosition)) {
+		this->SetPlayerPosition(playerUpdatedPosition);
+	}
+	else {
+		//reset velocity if it hits the image boundary,
+		// avoids velocity increment and therefore 
+		// also avoids lag in movement after boundary hit
+		this->velocity = { 0.0f,0.0f }; 
+	}
+	
 }
 
 void Player::PlayerDampenVelocity() {
@@ -124,8 +133,8 @@ Orientation Utility::SwitchOrientation(Orientation currentOrientation) {
 	return currentOrientation == LEFT ? RIGHT : LEFT;
 }
 
-const sf::Vector2f& Utility::BoundCheck(const sf::Vector2f& currentValue, const sf::Vector2f& newValue) {
+bool Utility::IsExceedingBoundary(const sf::Vector2f& currentValue, const sf::Vector2f& newValue) {
 	// restrict values within the game windowss
 	return  (newValue.x >= 1.0f && newValue.x <= MAP_WIDTH - TILE_WIDTH - 1
-		&& newValue.y >= 1.0f && newValue.y <= MAP_HEIGHT - TILE_HEIGHT - 1) ? newValue : currentValue;
+		&& newValue.y >= 1.0f && newValue.y <= MAP_HEIGHT - TILE_HEIGHT - 1) ? false : true;
 }

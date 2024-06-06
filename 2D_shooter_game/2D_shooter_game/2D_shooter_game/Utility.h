@@ -15,6 +15,6 @@ namespace Utility {
 	void RenderPlayer(sf::RenderWindow& mWindow, const std::unique_ptr<Player>& player);
 	inline Orientation SwitchOrientation(Orientation currentOrientation);
 
-	const sf::Vector2f& BoundCheck(const sf::Vector2f& currentValue, const sf::Vector2f& newValue);
+	bool IsExceedingBoundary(const sf::Vector2f& currentValue, const sf::Vector2f& newValue);
 
 }
