@@ -112,12 +112,21 @@ void Player::PlayerDampenVelocity() {
 
 void Game::CheckBoundaryConditionsForPlayer() {
 	if (Utility::IsExceedingBoundary(this->player->GetPosition(), this->player->GetPosition() + this->player->velocity)
-		|| Utility::IsTouchingOpaques(this->player->GetPosition() + this->player->velocity, tiles)) {
+		|| Utility::IsTouchingOpaques(sf::FloatRect(this->player->GetPosition() + this->player->velocity, 
+			this->player->GetPlayerHost().getSize()), opaqueTiles)) {
 		//reset velocity if it hits image boundary or hits opaque objects,
 		// avoids velocity increment and therefore 
 		// also avoids lag in movement after boundary hit
 		this->player->velocity = { 0.0f,0.0f };
 	}
+}
+
+void Game::GetAllOpaqueObjects() {
+	std::for_each(tiles.begin(), tiles.end(), [&](const MapTile& tile) {
+		if (tile.GetObjectPenetrationType() == OPAQUE) {
+			opaqueTiles.emplace_back(tile);
+		}
+		});
 }
 
 void App::RunApp() {
@@ -137,38 +146,19 @@ Orientation Utility::SwitchOrientation(Orientation currentOrientation) {
 
 bool Utility::IsExceedingBoundary(const sf::Vector2f& currentValue, const sf::Vector2f& newValue) {
 	// restrict values within the game windowss
-	return  (newValue.x >= 1.0f && newValue.x <= MAP_WIDTH - TILE_WIDTH - 1
-		&& newValue.y >= 1.0f && newValue.y <= MAP_HEIGHT - TILE_HEIGHT - 1) ? false : true;
+	bool val =  (newValue.x >= 1.0f && newValue.x <= (MAP_WIDTH - PLAYER_WIDTH -1.0f)
+		&& newValue.y >= 1.0f && newValue.y <= (MAP_HEIGHT - PLAYER_HEIGHT - 1.0f)) ? false : true;
+
+	if (val) { std::cout << "Exceeding border" << "\n"; }
+	return val;
 }
 
-bool Utility::IsTouchingOpaques(const sf::Vector2f& position, const std::vector<MapTile>& tiles) {
-	// TODO: does not work, change it with intersects with all opaque objects
-	std::vector<sf::Vector2i> localTiles;
-	sf::Vector2f tilePosition = { position.x / TILE_WIDTH, position.y / TILE_HEIGHT };
-	sf::Vector2i tileCoordinate = sf::Vector2i({ static_cast<int>(std::floor(tilePosition.x)),
-		static_cast<int>(std::floor(tilePosition.y)) });
-	localTiles.emplace_back(tileCoordinate);
-
-	//if (std::round(tilePosition.x - 0.5) != tilePosition.x) {
-	//	localTiles.emplace_back(tileCoordinate + sf::Vector2i({ 1,0 }));
-	//}
-	//if (std::round(tilePosition.y) != tilePosition.y) {
-	//	localTiles.emplace_back(tileCoordinate + sf::Vector2i({ 0,1 }));
-	//}
-	//if (std::round(tilePosition.x) != tilePosition.x && std::round(tilePosition.y) != tilePosition.y) {
-	//	localTiles.emplace_back(tileCoordinate + sf::Vector2i({ 1,1 }));
-	//}
-
-	localTiles.erase(
-		std::remove_if(
-			localTiles.begin(), localTiles.end(),
-			[](const sf::Vector2i& tile) {
-				return (tile.x >= 0 && tile.x < MAP_GRIDS_X && tile.y >= 0 && tile.y < MAP_GRIDS_Y) ? false : true; }),
-				localTiles.end());
-
-	bool val = std::any_of(localTiles.begin(), localTiles.end(), [&](const sf::Vector2i& tile) {
-		return tiles[tile.y * MAP_GRIDS_Y + tile.x].GetObjectPenetrationType() == OPAQUE;
+bool Utility::IsTouchingOpaques(const sf::FloatRect& hostBox, const std::vector<MapTile>& opaqueTiles) {
+	// checks if a given host-box intersects with any of the opaque tiles
+	bool val = std::any_of(opaqueTiles.begin(), opaqueTiles.end(), [&](const MapTile& opaqueTile) {
+		return opaqueTile.GetHost().getGlobalBounds().intersects(hostBox) ? true : false;
 		});
 
+	if (val) { std::cout << "Touching Opaque" << "\n"; }
 	return val;
 }

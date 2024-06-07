@@ -63,7 +63,7 @@ private:
 public:
 	sf::Vector2f velocity;
 	Player() :
-		position({1.0f, MAP_HEIGHT-2*TILE_HEIGHT }), 
+		position({ 1.0f, MAP_HEIGHT-2*TILE_HEIGHT }),
 		host(sf::Vector2f(PLAYER_WIDTH, PLAYER_HEIGHT)),
 		playerOrientation(RIGHT),
 		velocity({0.0f, 0.0f })
@@ -74,10 +74,10 @@ public:
 		}
 		// flip texture horizontally, as player image is facing left
 		// origin is now at top-right and top-left = -TILE_WIDTH
-		host.setScale(-1, 1);  
+		//host.setScale(-1, 1);  
 		// x-position of origin is offset by TILE_WIDTH to bring
 		// back the origin to top-left
-		host.setOrigin({ TILE_WIDTH,0 });
+		//host.setOrigin({ 0,0 });
 	}
 	~Player() {
 		std::cout << "Player destructed" << std::endl;
@@ -102,16 +102,19 @@ private:
 public:
 	App* appReference; // a reference of app is always provided to all submodules
 	std::vector <MapTile> tiles;
-	Game() :
+	std::vector <MapTile> opaqueTiles;
+	Game():
 		appReference(nullptr),
 		gameState(std::make_shared<GameRunning>()), // TODO: set the game state to DO_NOTHING
 		player(std::make_unique<Player>())
 	{
 		this->gameState->SetContext(this); // the context of the state has to be set in the beginning
 		InitializeMap();
+		GetAllOpaqueObjects();
 	}
 	~Game() { std::cout << "Game destroyed" << "\n"; }
 	void InitializeMap();
+	void GetAllOpaqueObjects();
 	void TransitionTo(std::unique_ptr<GameState>&& state);
 	const std::shared_ptr<GameState>& GetGameState() const { return gameState; }
 	void SetAppReference(App* appReference) {

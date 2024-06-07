@@ -46,7 +46,7 @@ public:
 	const sf::Vector2f& GetPosition() {
 		return this->position;
 	}
-	sf::RectangleShape& GetHost() { return host; };
+	const sf::RectangleShape& GetHost() const { return host; };
 	const ObjectPenetrationType& GetObjectPenetrationType() const { return objPenetrationType; }
 };
 
@@ -89,6 +89,7 @@ public:
 	Blank(sf::Vector2f position) :
 		MapTile(position, ObjectPenetrationType::TRANSPARENT, ObjectType::BLANK) {
 		host.setPosition(position); // set the initial position of the host
+		host.setFillColor(sf::Color::Black);
 		// no texture is binded
 	}
 };
