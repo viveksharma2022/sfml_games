@@ -102,7 +102,9 @@ void GameRunning::RunGame() {
 	this->gameContext->GetPlayer()->PlayerUpdatePosition();
 	this->gameContext->GetPlayer()->PlayerDampenVelocity();
 	Utility::UpdateBullets(this->gameContext);
-	Utility::ApplyBoundaryConditionsToBullets(this->gameContext);
+	// boundary conditions currently checks for crossing the game window
+	// or collding with opaque objects
+	Utility::ApplyBoundaryConditionsToBullets(this->gameContext); 
 	RenderGame();
 }
 
