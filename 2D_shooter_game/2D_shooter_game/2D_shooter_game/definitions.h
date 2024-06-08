@@ -9,3 +9,6 @@
 #define PLAYER_HEIGHT (TILE_HEIGHT-20)
 #define PLAYER_STEP_ACCELERATION 0.1f // acceleration-decelration step for each movement button-pressed
 #define PLAYER_DAMPENING_COEFFICIENT 0.99f //velocity dampening factor for each non-movement button-pressed-iteration
+#define BULLET_WIDTH 10
+#define BULLET_HEIGHT 5
+#define PLAYER_BULLET_VELOCITY 500 // pixels per sec

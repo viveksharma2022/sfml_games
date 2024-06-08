@@ -61,7 +61,7 @@ void Player::HandlePlayerInputs(sf::Keyboard::Key key) {
 	// following function call
 	//
 	sf::Vector2f acceleration;
-	// movement parts
+	///////////////// movement parts ////////////////////
 	if (key == sf::Keyboard::Left) {
 		acceleration.x -= PLAYER_STEP_ACCELERATION;
 	}
@@ -76,6 +76,13 @@ void Player::HandlePlayerInputs(sf::Keyboard::Key key) {
 	}
 	// accumulate to velocity
 	velocity += acceleration;
+
+	///////////////shooting part ///////////////
+	if (key == sf::Keyboard::LShift) {
+		this->bullets.emplace_back(sf::Vector2f({ this->GetPosition().x,this->GetPosition().y + PLAYER_HEIGHT / 2 }),
+			this->GetPlayerOrientation(), 
+			sf::Vector2f({ PLAYER_BULLET_VELOCITY ,PLAYER_BULLET_VELOCITY }));
+	}
 }
 
 void GameRunning::RenderGame() {
@@ -84,6 +91,7 @@ void GameRunning::RenderGame() {
 		this->gameContext->tiles);
 	Utility::RenderPlayer(this->gameContext->appReference->mWindow,
 		this->gameContext->GetPlayer());
+	Utility::RenderBullets(this->gameContext);
 	this->gameContext->appReference->mWindow.display();
 }
 
@@ -93,9 +101,10 @@ void GameRunning::RunGame() {
 	this->gameContext->CheckBoundaryConditionsForPlayer();
 	this->gameContext->GetPlayer()->PlayerUpdatePosition();
 	this->gameContext->GetPlayer()->PlayerDampenVelocity();
+	Utility::UpdateBullets(this->gameContext);
+	Utility::ApplyBoundaryConditionsToBullets(this->gameContext);
 	RenderGame();
 }
-
 
 void Player::PlayerUpdatePosition() {
 	sf::Vector2f playerCurrentPosition = GetPosition();
@@ -111,7 +120,7 @@ void Player::PlayerDampenVelocity() {
 }
 
 void Game::CheckBoundaryConditionsForPlayer() {
-	if (Utility::IsExceedingBoundary(this->player->GetPosition(), this->player->GetPosition() + this->player->velocity)
+	if (Utility::IsExceedingBoundary({PLAYER_WIDTH,PLAYER_HEIGHT}, this->player->GetPosition() + this->player->velocity)
 		|| Utility::IsTouchingOpaques(sf::FloatRect(this->player->GetPosition() + this->player->velocity, 
 			this->player->GetPlayerHost().getSize()), opaqueTiles)) {
 		//reset velocity if it hits image boundary or hits opaque objects,
@@ -144,10 +153,10 @@ Orientation Utility::SwitchOrientation(Orientation currentOrientation) {
 	return currentOrientation == LEFT ? RIGHT : LEFT;
 }
 
-bool Utility::IsExceedingBoundary(const sf::Vector2f& currentValue, const sf::Vector2f& newValue) {
+bool Utility::IsExceedingBoundary(const sf::Vector2f& entityDimension, const sf::Vector2f& newValue) {
 	// restrict values within the game windowss
-	bool val =  (newValue.x >= 1.0f && newValue.x <= (MAP_WIDTH - PLAYER_WIDTH -1.0f)
-		&& newValue.y >= 1.0f && newValue.y <= (MAP_HEIGHT - PLAYER_HEIGHT - 1.0f)) ? false : true;
+	bool val =  (newValue.x >= 1.0f && newValue.x <= (MAP_WIDTH - entityDimension.x -1.0f)
+		&& newValue.y >= 1.0f && newValue.y <= (MAP_HEIGHT - entityDimension.y - 1.0f)) ? false : true;
 
 	if (val) { std::cout << "Exceeding border" << "\n"; }
 	return val;
@@ -161,4 +170,36 @@ bool Utility::IsTouchingOpaques(const sf::FloatRect& hostBox, const std::vector<
 
 	if (val) { std::cout << "Touching Opaque" << "\n"; }
 	return val;
+}
+
+void Utility::RenderBullets(Game* game) {
+	// Render player bullets
+	for (const auto& pB : game->GetPlayer()->bullets) {
+		game->appReference->mWindow.draw(pB.host);
+	}
+}
+
+void Utility::UpdateBullets(Game* game) {
+	float deltaTime			 = globalClock.restart().asSeconds(); // get delta time
+	// update player bullets
+	for (auto& pB : game->GetPlayer()->bullets) {
+		// update position
+		pB.position.x = pB.position.x - pB.velocity.x * deltaTime;	// bullet only moves horizontally
+		pB.host.setPosition(pB.position);
+	}
+}
+
+void Utility::ApplyBoundaryConditionsToBullets(Game* game) {
+	// checks for boundary conditions and destroys bullets if satisfied
+	// first check player boundary conditions
+	for (auto& pB : game->GetPlayer()->bullets) {
+		if (IsExceedingBoundary(sf::Vector2f({ BULLET_WIDTH,BULLET_HEIGHT }), pB.position)
+			|| IsTouchingOpaques(pB.host.getGlobalBounds(), game->opaqueTiles)) {
+			pB.isExist = false;
+		}	
+	}
+	game->GetPlayer()->bullets.erase(
+		std::remove_if(game->GetPlayer()->bullets.begin(), game->GetPlayer()->bullets.end(), 
+			[](const Bullet& b) { return !b.isExist; }),
+		game->GetPlayer()->bullets.end()); // remove player bullets if not exist
 }

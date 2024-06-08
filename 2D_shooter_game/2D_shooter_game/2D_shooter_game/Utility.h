@@ -3,6 +3,7 @@
 
 class Player;
 enum Orientation;
+class Game;
 
 namespace Utility {
 	template<typename T>
@@ -16,4 +17,7 @@ namespace Utility {
 	inline Orientation SwitchOrientation(Orientation currentOrientation);
 	bool IsExceedingBoundary(const sf::Vector2f& currentValue, const sf::Vector2f& newValue);
 	bool IsTouchingOpaques(const sf::FloatRect& hostBox, const std::vector<MapTile>& opaqueTiles);
+	void RenderBullets(Game* game);
+	void UpdateBullets(Game* game);
+	void ApplyBoundaryConditionsToBullets(Game* game);
 }

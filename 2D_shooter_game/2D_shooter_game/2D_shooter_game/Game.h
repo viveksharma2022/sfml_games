@@ -10,6 +10,7 @@ static sf::Texture playerTexture;
 
 class Game;
 class App;
+extern sf::Clock globalClock;
 
 enum Orientation {
 	LEFT,
@@ -23,10 +24,25 @@ enum GameStates {
 	DO_NOTHING
 };
 
-class Bullet {
-private:
-
-
+struct Bullet {
+public:
+	sf::RectangleShape host; // host position of the player on the screen
+	sf::Vector2f position;
+	Orientation orientation;
+	sf::Vector2f velocity;
+	bool isExist;
+	Bullet(const sf::Vector2f& position, 
+		const Orientation& orientation,
+		const sf::Vector2f& velocity):
+		position(position),
+		host(sf::Vector2f({BULLET_WIDTH, BULLET_HEIGHT})),
+		orientation(orientation),
+		velocity(velocity),
+		isExist(true)
+	{
+		host.setPosition(position);
+	}
+	const Orientation& GetOrientation() const { return orientation; }
 };
 
 class GameState {
@@ -61,6 +77,7 @@ private:
 	sf::Vector2f position;
 	Orientation playerOrientation;
 public:
+	std::vector<Bullet> bullets;
 	sf::Vector2f velocity;
 	Player() :
 		position({ 1.0f, MAP_HEIGHT-2*TILE_HEIGHT }),

@@ -1,6 +1,8 @@
 #include "map.h"
 #include "Game.h"
 
+sf::Clock globalClock;
+
 int main() {
 
 	// To be modified
