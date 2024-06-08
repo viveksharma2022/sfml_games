@@ -5,8 +5,9 @@
 #include "Utility.h"
 
 const std::string playerTexFile = "assets\\player.png";
+const std::string playerBulletTexFile = "assets\\playerBullet.png";
 static sf::Texture playerTexture;
-
+static sf::Texture playerBulletTexture;
 
 class Game;
 class App;
@@ -41,6 +42,10 @@ public:
 		isExist(true)
 	{
 		host.setPosition(position);
+		if (playerBulletTexture.loadFromFile(playerBulletTexFile)) {
+			host.setTexture(&playerBulletTexture);// set the texture for the player
+		}
+
 	}
 	const Orientation& GetOrientation() const { return orientation; }
 };
