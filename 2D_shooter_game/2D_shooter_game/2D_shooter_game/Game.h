@@ -13,6 +13,13 @@ class Game;
 class App;
 extern sf::Clock globalClock;
 
+struct CollisionDirections {
+	bool isTouchingUp;
+	bool isTouchingDown;
+	bool isTouchingLeft;
+	bool isTouchingRight;
+};
+
 enum Orientation {
 	LEFT,
 	RIGHT

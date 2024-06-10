@@ -68,12 +68,16 @@ void Player::HandlePlayerInputs(sf::Keyboard::Key key) {
 	else if (key == sf::Keyboard::Right) {
 		acceleration.x += PLAYER_STEP_ACCELERATION;
 	}
+	else if (key == sf::Keyboard::Space) {
+		acceleration.y -= PLAYER_JUMP_ACCELERATION;
+	}
 	else if (key == sf::Keyboard::Up) {
-		acceleration.y -= PLAYER_STEP_ACCELERATION;
+		acceleration.y -= PLAYER_JUMP_ACCELERATION;
 	}
 	else if (key == sf::Keyboard::Down) {
-		acceleration.y += PLAYER_STEP_ACCELERATION;
+		acceleration.y += PLAYER_JUMP_ACCELERATION;
 	}
+
 	// accumulate to velocity
 	velocity += acceleration;
 
@@ -102,6 +106,7 @@ void GameRunning::RunGame() {
 	this->gameContext->GetPlayer()->PlayerUpdatePosition();
 	this->gameContext->GetPlayer()->PlayerDampenVelocity();
 	Utility::UpdateBullets(this->gameContext);
+	//Utility::ApplyGravityEffect(this->gameContext);
 	// boundary conditions currently checks for crossing the game window
 	// or collding with opaque objects
 	Utility::ApplyBoundaryConditionsToBullets(this->gameContext); 
@@ -121,15 +126,20 @@ void Player::PlayerDampenVelocity() {
 	velocity.y *= PLAYER_DAMPENING_COEFFICIENT;
 }
 
+void Utility::ApplyGravityEffect(Game* game) {
+	// apply gravity on player
+	game->GetPlayer()->velocity.y += GRAVITY;
+}
+
 void Game::CheckBoundaryConditionsForPlayer() {
-	if (Utility::IsExceedingBoundary({PLAYER_WIDTH,PLAYER_HEIGHT}, this->player->GetPosition() + this->player->velocity)
-		|| Utility::IsTouchingOpaques(sf::FloatRect(this->player->GetPosition() + this->player->velocity, 
-			this->player->GetPlayerHost().getSize()), opaqueTiles)) {
-		//reset velocity if it hits image boundary or hits opaque objects,
-		// avoids velocity increment and therefore 
-		// also avoids lag in movement after boundary hit
-		this->player->velocity = { 0.0f,0.0f };
+	if (Utility::IsExceedingBoundary({ PLAYER_WIDTH,PLAYER_HEIGHT },
+		this->player->GetPosition() + this->player->velocity)) {
+		this->player->velocity.x = 0;
 	}
+
+	CollisionDirections collisionDirections = Utility::IsTouchingOpaquesDetailed(sf::FloatRect{ this->player->GetPosition() + this->player->velocity,this->player->GetPlayerHost().getSize() },
+		this->opaqueTiles); // implement this
+
 }
 
 void Game::GetAllOpaqueObjects() {
@@ -167,7 +177,14 @@ bool Utility::IsExceedingBoundary(const sf::Vector2f& entityDimension, const sf:
 bool Utility::IsTouchingOpaques(const sf::FloatRect& hostBox, const std::vector<MapTile>& opaqueTiles) {
 	// checks if a given host-box intersects with any of the opaque tiles
 	bool val = std::any_of(opaqueTiles.begin(), opaqueTiles.end(), [&](const MapTile& opaqueTile) {
-		return opaqueTile.GetHost().getGlobalBounds().intersects(hostBox) ? true : false;
+		const sf::FloatRect opaqueTileBox = opaqueTile.GetHost().getGlobalBounds();
+		if (opaqueTileBox.intersects(hostBox)) {
+			//sf::FloatRect intersectingRectangle;
+			//Utility::GetIntersectingRectangle(opaqueTileBox, hostBox, intersectingRectangle);
+			// TODO: check if it is top touch or bottom touch: change the architecture
+			return true;
+		}
+		return val;
 		});
 
 	if (val) { std::cout << "Touching Opaque" << "\n"; }
@@ -204,4 +221,18 @@ void Utility::ApplyBoundaryConditionsToBullets(Game* game) {
 		std::remove_if(game->GetPlayer()->bullets.begin(), game->GetPlayer()->bullets.end(), 
 			[](const Bullet& b) { return !b.isExist; }),
 		game->GetPlayer()->bullets.end()); // remove player bullets if not exist
+}
+
+void Utility::GetIntersectingRectangle(const sf::FloatRect& rect1, const sf::FloatRect& rect2, sf::FloatRect& intersectingRectangle) {
+	// REVIEW this
+	intersectingRectangle.left = std::max(rect1.left, rect2.left);
+	intersectingRectangle.top  = std::max(rect1.top, rect2.top);
+
+	intersectingRectangle.width = std::min(rect1.left + rect1.width, rect2.left + rect2.width) - intersectingRectangle.left;
+	intersectingRectangle.height = std::min(rect1.top + rect1.height, rect2.top + rect2.height) - intersectingRectangle.top;
+}
+
+CollisionDirections Utility::IsTouchingOpaquesDetailed(const sf::FloatRect& hostBox, const std::vector<MapTile>& opaqueTiles) {
+	//TODO: check all kinds of overlaps 
+	// overlapping from top, down, left or right
 }
