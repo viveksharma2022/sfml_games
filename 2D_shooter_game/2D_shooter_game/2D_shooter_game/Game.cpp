@@ -137,19 +137,15 @@ void Game::CheckBoundaryConditionsForPlayer() {
 	CollisionDirections collisionDirections = Utility::IsTouchingOpaquesDetailed(sf::FloatRect{ this->player->GetPosition() + this->player->velocity,this->player->GetPlayerHost().getSize() },
 		this->opaqueTiles);
 	if (collisionDirections.isTouchingDown && (this->player->velocity.y >= 0)) {
-		//std::cout << "Player touching down" << "\n";
 		this->player->velocity.y = 0;
 	}
 	if (collisionDirections.isTouchingUp) {
-		//std::cout << "Player touching up" << "\n";
 		this->player->velocity.y = 0;
 	}
 	if (collisionDirections.isTouchingLeft) {
-		//std::cout << "Player touching left" << "\n";
 		this->player->velocity.x = 0;
 	}
 	if (collisionDirections.isTouchingRight) {
-		//std::cout << "Player touching right" << "\n";
 		this->player->velocity.x = 0;
 	}
 }
