@@ -68,14 +68,11 @@ void Player::HandlePlayerInputs(sf::Keyboard::Key key) {
 	else if (key == sf::Keyboard::Right) {
 		acceleration.x += PLAYER_STEP_ACCELERATION;
 	}
-	else if (key == sf::Keyboard::Space) {
-		acceleration.y -= PLAYER_JUMP_ACCELERATION;
-	}
-	else if (key == sf::Keyboard::Up) {
-		acceleration.y -= PLAYER_JUMP_ACCELERATION;
-	}
-	else if (key == sf::Keyboard::Down) {
-		acceleration.y += PLAYER_JUMP_ACCELERATION;
+    else if (key == sf::Keyboard::Space && velocity.y == 0) {
+		//velocity.y == 0 makes sure that the player is landed and therefore jump is activated
+		//only during land
+		// add smoothness - more Physics based
+		acceleration.y -= (PLAYER_STEP_ACCELERATION);
 	}
 
 	// accumulate to velocity
@@ -102,11 +99,11 @@ void GameRunning::RenderGame() {
 void GameRunning::RunGame() {
 	PollEvents();
 	if (!this->state == GAME_RUNNING) { return; }
+	Utility::ApplyGravityEffect(this->gameContext);
 	this->gameContext->CheckBoundaryConditionsForPlayer();
 	this->gameContext->GetPlayer()->PlayerUpdatePosition();
 	this->gameContext->GetPlayer()->PlayerDampenVelocity();
 	Utility::UpdateBullets(this->gameContext);
-	//Utility::ApplyGravityEffect(this->gameContext);
 	// boundary conditions currently checks for crossing the game window
 	// or collding with opaque objects
 	Utility::ApplyBoundaryConditionsToBullets(this->gameContext); 
@@ -123,7 +120,7 @@ void Player::PlayerDampenVelocity() {
 	// dampen the velocity if nothing is pressed, normal act of 
 	// decelerations
 	velocity.x *= PLAYER_DAMPENING_COEFFICIENT; 
-	velocity.y *= PLAYER_DAMPENING_COEFFICIENT;
+//	velocity.y *= PLAYER_DAMPENING_COEFFICIENT;
 }
 
 void Utility::ApplyGravityEffect(Game* game) {
@@ -138,8 +135,23 @@ void Game::CheckBoundaryConditionsForPlayer() {
 	}
 
 	CollisionDirections collisionDirections = Utility::IsTouchingOpaquesDetailed(sf::FloatRect{ this->player->GetPosition() + this->player->velocity,this->player->GetPlayerHost().getSize() },
-		this->opaqueTiles); // implement this
-
+		this->opaqueTiles);
+	if (collisionDirections.isTouchingDown && (this->player->velocity.y >= 0)) {
+		//std::cout << "Player touching down" << "\n";
+		this->player->velocity.y = 0;
+	}
+	if (collisionDirections.isTouchingUp) {
+		//std::cout << "Player touching up" << "\n";
+		this->player->velocity.y = 0;
+	}
+	if (collisionDirections.isTouchingLeft) {
+		//std::cout << "Player touching left" << "\n";
+		this->player->velocity.x = 0;
+	}
+	if (collisionDirections.isTouchingRight) {
+		//std::cout << "Player touching right" << "\n";
+		this->player->velocity.x = 0;
+	}
 }
 
 void Game::GetAllOpaqueObjects() {
@@ -177,15 +189,13 @@ bool Utility::IsExceedingBoundary(const sf::Vector2f& entityDimension, const sf:
 bool Utility::IsTouchingOpaques(const sf::FloatRect& hostBox, const std::vector<MapTile>& opaqueTiles) {
 	// checks if a given host-box intersects with any of the opaque tiles
 	bool val = std::any_of(opaqueTiles.begin(), opaqueTiles.end(), [&](const MapTile& opaqueTile) {
-		const sf::FloatRect opaqueTileBox = opaqueTile.GetHost().getGlobalBounds();
-		if (opaqueTileBox.intersects(hostBox)) {
-			//sf::FloatRect intersectingRectangle;
-			//Utility::GetIntersectingRectangle(opaqueTileBox, hostBox, intersectingRectangle);
-			// TODO: check if it is top touch or bottom touch: change the architecture
+		if (opaqueTile.GetHost().getGlobalBounds().intersects(hostBox)) {
 			return true;
 		}
-		return val;
-		});
+		else {
+			return false;
+		}
+	});
 
 	if (val) { std::cout << "Touching Opaque" << "\n"; }
 	return val;
@@ -235,4 +245,31 @@ void Utility::GetIntersectingRectangle(const sf::FloatRect& rect1, const sf::Flo
 CollisionDirections Utility::IsTouchingOpaquesDetailed(const sf::FloatRect& hostBox, const std::vector<MapTile>& opaqueTiles) {
 	//TODO: check all kinds of overlaps 
 	// overlapping from top, down, left or right
+	sf::FloatRect intersectingRectangle;
+	CollisionDirections collisionDirections{ false,false,false,false };
+	std::for_each(opaqueTiles.begin(), opaqueTiles.end(), [&](const MapTile& opaqueTile) {
+		if (opaqueTile.GetHost().getGlobalBounds().intersects(hostBox)) {
+			Utility::GetIntersectingRectangle(hostBox, opaqueTile.GetHost().getGlobalBounds(), intersectingRectangle);
+			if ((intersectingRectangle.width * intersectingRectangle.height) < MINIMUM_OVERLAP_AREA) {
+				return;
+			}
+			
+			if (intersectingRectangle.width <= intersectingRectangle.height) {
+				// this case: intersects left or right
+				(std::fabs(intersectingRectangle.left - hostBox.left) < static_cast<float>(PLAYER_WIDTH / 2))?
+					(collisionDirections.isTouchingLeft = true):
+					(collisionDirections.isTouchingRight = true);
+			}
+			else {
+				// this case: intersects up or down
+				(std::fabs(intersectingRectangle.top - hostBox.top) < static_cast<float>(PLAYER_HEIGHT / 2))?
+					(collisionDirections.isTouchingUp = true):
+					(collisionDirections.isTouchingDown = true);
+			}
+		}
+		
+
+		});
+	return collisionDirections;
+
 }

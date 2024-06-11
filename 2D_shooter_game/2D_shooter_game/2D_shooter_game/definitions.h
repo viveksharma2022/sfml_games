@@ -12,5 +12,6 @@
 #define BULLET_WIDTH 20
 #define BULLET_HEIGHT 10
 #define PLAYER_BULLET_VELOCITY 500 // pixels per sec
-#define GRAVITY 0.05f // velocity falls at such pixels per frame
-#define PLAYER_JUMP_ACCELERATION 0.3f
+#define GRAVITY 0.0001f // velocity falls at such pixels per frame
+#define PLAYER_JUMP_ACCELERATION 1.0f
+#define MINIMUM_OVERLAP_AREA (PLAYER_WIDTH*0.5)

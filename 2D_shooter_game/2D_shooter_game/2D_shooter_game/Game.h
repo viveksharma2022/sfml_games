@@ -3,6 +3,7 @@
 #include "sfml\Graphics.hpp"
 #include "Map.h"
 #include "Utility.h"
+#include <math.h>
 
 const std::string playerTexFile = "assets\\player.png";
 const std::string playerBulletTexFile = "assets\\playerBullet.png";
