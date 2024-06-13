@@ -23,11 +23,11 @@ void Player::SetPlayerPosition(sf::Vector2f newPosition) {
 	this->GetPlayerHost().setPosition(newPosition);
 }
 
-void Game::TransitionTo(std::unique_ptr<GameState>&& newState) {
+void Game::TransitionTo(std::shared_ptr<GameState> newState) {
 	if (this->gameState) {
 		gameState.reset();
 	}
-	this->gameState = std::move(newState);
+	this->gameState = newState;
 	this->gameState->SetContext(this);
 }
 
@@ -44,9 +44,35 @@ void GameRunning::PollEvents() {
 			break;
 		case sf::Event::KeyPressed:
 			this->gameContext->GetPlayer()->HandlePlayerInputs(event.key.code);
+			// handle pause event
+			if (event.key.code == sf::Keyboard::P) {
+				this->gameContext->TransitionTo(std::make_shared<GamePaused>());
+				return; // quit window polling as well 
+			}
 			break;
 			// we don't process other types of events
 		default:
+			break;
+		}
+	}
+}
+
+void GamePaused::PollEvents() {
+	sf::Event event;
+	while (this->gameContext->appReference->mWindow.pollEvent(event))
+	{
+		// check the type of the event...Handle only pause event
+		switch (event.type)
+		{
+			// window closed
+		case sf::Event::Closed:
+			this->gameContext->appReference->mWindow.close();
+			break;
+		case sf::Event::KeyPressed:
+			if (event.key.code == sf::Keyboard::P) {
+				this->gameContext->TransitionTo(std::make_shared<GameRunning>());
+				return; // quit window polling as well 
+			}
 			break;
 		}
 	}
@@ -84,9 +110,10 @@ void Player::HandlePlayerInputs(sf::Keyboard::Key key) {
 			this->GetPlayerOrientation(), 
 			sf::Vector2f({ PLAYER_BULLET_VELOCITY ,PLAYER_BULLET_VELOCITY }));
 	}
+
 }
 
-void GameRunning::RenderGame() {
+void GameState::RenderGame() {
 	this->gameContext->appReference->mWindow.clear();
 	Utility::RenderMap(this->gameContext->appReference->mWindow,
 		this->gameContext->tiles);
@@ -97,8 +124,9 @@ void GameRunning::RenderGame() {
 }
 
 void GameRunning::RunGame() {
+	if (!this->state == GAME_RUNNING) { return; } // do not execute if state changed
 	PollEvents();
-	if (!this->state == GAME_RUNNING) { return; }
+	if (!this->state == GAME_RUNNING) { return; } // do not execute if state changed
 	Utility::ApplyGravityEffect(this->gameContext);
 	this->gameContext->CheckBoundaryConditionsForPlayer();
 	this->gameContext->GetPlayer()->PlayerUpdatePosition();
@@ -107,6 +135,12 @@ void GameRunning::RunGame() {
 	// boundary conditions currently checks for crossing the game window
 	// or collding with opaque objects
 	Utility::ApplyBoundaryConditionsToBullets(this->gameContext); 
+	RenderGame();
+}
+
+void GamePaused::RunGame() {
+	PollEvents();
+	if (!(this->state == GAME_PAUSED)) { return; }
 	RenderGame();
 }
 

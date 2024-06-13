@@ -68,7 +68,7 @@ public:
 		state(state) {}
 	~GameState() = default;
 	virtual void RunGame() = 0;
-	virtual void RenderGame() = 0;
+	virtual void RenderGame();
 	virtual void PollEvents() = 0;
 	void SetContext(Game* gameContext) {
 		this->gameContext = gameContext;
@@ -80,7 +80,14 @@ public:
 	GameRunning() :GameState(GAME_RUNNING) {}
 	~GameRunning() { std::cout << "Game-Running state destroyed" << "\n"; }
 	void RunGame();
-	void RenderGame();
+	void PollEvents();
+};
+
+class GamePaused : public GameState {
+public:
+	GamePaused() :GameState(GAME_PAUSED) {}
+	~GamePaused() { std::cout << "Game-Paused state destroyed" << "\n"; }
+	void RunGame();
 	void PollEvents();
 };
 
@@ -145,7 +152,7 @@ public:
 	~Game() { std::cout << "Game destroyed" << "\n"; }
 	void InitializeMap();
 	void GetAllOpaqueObjects();
-	void TransitionTo(std::unique_ptr<GameState>&& state);
+	void TransitionTo(std::shared_ptr<GameState> state);
 	const std::shared_ptr<GameState>& GetGameState() const { return gameState; }
 	void SetAppReference(App* appReference) {
 		this->appReference = appReference;
