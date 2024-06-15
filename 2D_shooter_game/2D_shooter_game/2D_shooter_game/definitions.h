@@ -7,11 +7,11 @@
 #define MAP_HEIGHT MAP_GRIDS_Y*TILE_HEIGHT
 #define PLAYER_WIDTH (TILE_WIDTH-20)
 #define PLAYER_HEIGHT (TILE_HEIGHT-20)
-#define PLAYER_STEP_ACCELERATION 0.1f // acceleration-decelration step for each movement button-pressed
-#define PLAYER_DAMPENING_COEFFICIENT 0.99f //velocity dampening factor for each non-movement button-pressed-iteration
+#define PLAYER_STEP_ACCELERATION 0.07f // acceleration-decelration step for each movement button-pressed
+#define PLAYER_DAMPENING_COEFFICIENT 0.994f //velocity dampening factor for each non-movement button-pressed-iteration
 #define BULLET_WIDTH 20
 #define BULLET_HEIGHT 10
 #define PLAYER_BULLET_VELOCITY 500 // pixels per sec
-#define GRAVITY 0.0001f // velocity falls at such pixels per frame
-#define PLAYER_JUMP_ACCELERATION 1.0f
+#define GRAVITY 0.001f // velocity falls at such pixels per frame
+#define PLAYER_JUMP_ACCELERATION 0.47f
 #define MINIMUM_OVERLAP_AREA (PLAYER_WIDTH*0.5)

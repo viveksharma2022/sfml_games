@@ -24,4 +24,5 @@ namespace Utility {
 	void ApplyBoundaryConditionsToBullets(Game* game);
 	void ApplyGravityEffect(Game* game);
 	void GetIntersectingRectangle(const sf::FloatRect& rect1, const sf::FloatRect& rect2, sf::FloatRect& intersectingRectangle);
+	void RenderCommon(Game* game);
 }

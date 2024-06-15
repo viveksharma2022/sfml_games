@@ -98,7 +98,7 @@ void Player::HandlePlayerInputs(sf::Keyboard::Key key) {
 		//velocity.y == 0 makes sure that the player is landed and therefore jump is activated
 		//only during land
 		// add smoothness - more Physics based
-		acceleration.y -= (PLAYER_STEP_ACCELERATION);
+		acceleration.y -= (PLAYER_JUMP_ACCELERATION);
 	}
 
 	// accumulate to velocity
@@ -115,11 +115,16 @@ void Player::HandlePlayerInputs(sf::Keyboard::Key key) {
 
 void GameState::RenderGame() {
 	this->gameContext->appReference->mWindow.clear();
-	Utility::RenderMap(this->gameContext->appReference->mWindow,
-		this->gameContext->tiles);
-	Utility::RenderPlayer(this->gameContext->appReference->mWindow,
-		this->gameContext->GetPlayer());
-	Utility::RenderBullets(this->gameContext);
+	Utility::RenderCommon(this->gameContext);
+	this->gameContext->appReference->mWindow.display();
+}
+
+void GamePaused::RenderGame() {
+	this->gameContext->appReference->mWindow.clear();
+	Utility::RenderCommon(this->gameContext);
+	static sf::Text text("Pause!", this->gameContext->gameTextFont, 50);
+	text.setStyle(sf::Text::Bold | sf::Text::Underlined); // set the text style
+	this->gameContext->appReference->mWindow.draw(text);
 	this->gameContext->appReference->mWindow.display();
 }
 
@@ -153,8 +158,7 @@ void Player::PlayerUpdatePosition() {
 void Player::PlayerDampenVelocity() {
 	// dampen the velocity if nothing is pressed, normal act of 
 	// decelerations
-	velocity.x *= PLAYER_DAMPENING_COEFFICIENT; 
-//	velocity.y *= PLAYER_DAMPENING_COEFFICIENT;
+	velocity.x *= PLAYER_DAMPENING_COEFFICIENT;
 }
 
 void Utility::ApplyGravityEffect(Game* game) {
@@ -302,4 +306,13 @@ CollisionDirections Utility::IsTouchingOpaquesDetailed(const sf::FloatRect& host
 		});
 	return collisionDirections;
 
+}
+
+void Utility::RenderCommon(Game* game) {
+	// rendering functionalities common to all game states
+	Utility::RenderMap(game->appReference->mWindow,
+		game->tiles);
+	Utility::RenderPlayer(game->appReference->mWindow,
+		game->GetPlayer());
+	Utility::RenderBullets(game);
 }

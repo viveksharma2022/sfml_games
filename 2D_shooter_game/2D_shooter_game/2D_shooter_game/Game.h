@@ -9,6 +9,7 @@ const std::string playerTexFile = "assets\\player.png";
 const std::string playerBulletTexFile = "assets\\playerBullet.png";
 static sf::Texture playerTexture;
 static sf::Texture playerBulletTexture;
+const std::string gameFont = "resources\\arial.ttf";
 
 class Game;
 class App;
@@ -89,6 +90,7 @@ public:
 	~GamePaused() { std::cout << "Game-Paused state destroyed" << "\n"; }
 	void RunGame();
 	void PollEvents();
+	void RenderGame();
 };
 
 class Player {
@@ -140,6 +142,7 @@ public:
 	App* appReference; // a reference of app is always provided to all submodules
 	std::vector <MapTile> tiles;
 	std::vector <MapTile> opaqueTiles;
+	sf::Font gameTextFont; // font for text display
 	Game():
 		appReference(nullptr),
 		gameState(std::make_shared<GameRunning>()), // TODO: set the game state to DO_NOTHING
@@ -148,6 +151,9 @@ public:
 		this->gameState->SetContext(this); // the context of the state has to be set in the beginning
 		InitializeMap();
 		GetAllOpaqueObjects();
+		if (!gameTextFont.loadFromFile(gameFont)) {} // Load font
+		this->gameState->SetContext(this); // the context of the state has to be set in the beginning
+
 	}
 	~Game() { std::cout << "Game destroyed" << "\n"; }
 	void InitializeMap();
