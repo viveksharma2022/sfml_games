@@ -13,3 +13,19 @@ a faster enemy earns more points.
 	&#8594; move right  
 	&#8679; shoot  
     *SPACE* pause
+
+## 2. 2D shooter game
+Player moves on a 2D map and the goal is to reach from the source to the destination. In between he/she encounters enemies
+that needs to be shot. The enemies inturn can shoot the player and player has to dodge the enemy bullets and navigate safely to 
+end. The game is implemented in state-design pattern for different game states: running, paused and gameOver. 
+* **Controls:**  
+	&#8592; move left  
+	&#8594; move right  
+	&#8679; shoot  
+    *SPACE* jump<br />
+	p pause
+
+The UML class diagram is given below:
+![image info](./2D_shooter_game/2D_shooter_game/2D_shooter_game/resources/2D_shooter_game_design_UML.png)
+
+
